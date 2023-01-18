@@ -1,0 +1,443 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>APRS Radio Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <meta http-equiv="refresh" content="1">  -->
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div class="topnav">
+    <h1>APRS Radio Server</h1>
+    <br>
+    <h2>Settings</h2>
+  </div>
+  <hr>
+  <div class="divinfo">
+    <form action="/store" method="get">
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              WiFi SSID: 
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="wifiSSID" value="%wifiSSID%">
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              WiFi Password:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="wifiPass" value="%wifiPass%">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              APRS Channel:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="aprsChannel" value="%aprsChannel%" min="0" max="%maxChannel%">
+              <span style="color:red;font-size: medium;">%aprsFreq%</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              APRS IP:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="aprsIP" value="%aprsIP%">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              APRS Port:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="aprsPort" value="%aprsPort%" min="0" max="99999">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              APRS Password:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="aprsPassword" value="%aprsPassword%">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              APRS Server SSID:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="serverSsid" value="%serverSsid%" min="0" max="99">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              APRS Server refresh interval:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="aprsGatewayRefreshTime" value="%aprsGatewayRefreshTime%" min="0" max="86400">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Call:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="call" value="%call%">
+              <input type="number" name="ssid" value="%ssid%" min="0" max="99">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Symbol:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="symbool" value="%symbool%">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Dest:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="dest" value="%dest%">
+              <input type="number" name="destSsid" value="%destSsid%" min="0" max="99">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Path1:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="path1" value="%path1%">
+              <input type="number" name="path1Ssid" value="%path1Ssid%" min="0" max="99">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>     
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Path2:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="path2" value="%path2%">
+              <input type="number" name="path2Ssid" value="%path2Ssid%" min="0" max="99">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Comment:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="text" name="comment" value="%comment%">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Interval:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="interval" value="%interval%" min="0" max="255">
+              &nbsp;Multiplier:
+              <input type="number" name="multiplier" value="%multiplier%" min="0" max="255">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+      
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Multiplier:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="multiplier" value="%multiplier%" min="0" max="255">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+      
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Power:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="power" value="%power%" min="0" max="255">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Height:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="height" value="%height%" min="0" max="255">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Gain:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="gain" value="%gain%" min="0" max="255">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+      
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Directivity:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="directivity" value="%directivity%" min="0" max="359">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Auto shift:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="checkbox" name="autoShift" value="autoShift" %autoShift%>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Beacon after TX:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="checkbox" name="bcnAfterTX" value="bcnAfterTX" %bcnAfterTX%>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              TX Timeout:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="txTimeOut" value="%txTimeOut%" min="0" max="240">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Lat:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="lat" value="%lat%" min="-90" max="90" step="any">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Lon:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="lon" value="%lon%" min="-180" max="180" step="any">
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br> 
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              MAX Channel:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="number" name="maxChannel" value="%maxChannel%" min="0" max="320">
+              <span style="color:red;font-size: medium;">%maxFreq%</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="hwidth" style="text-align:right;font-size: medium;">
+              Debugmode:
+            </td>
+            <td class="hwidth" style="text-align:left;font-size: medium;">
+              <input type="checkbox" name="isDebug" value="isDebug" %isDebug%>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <br>
+
+      <div class="divinfo">
+        <table class="fwidth">
+          <tr>
+            <td class="fwidth" style="text-align:center;font-size: medium;">
+              <input style="font-size: medium;"" type="submit" value="Submit">
+            </td>
+          </tr>
+        </table>
+      </div>
+      
+    </form><br>
+  </div>
+  <hr>
+
+  <div class="topnav" style="background-color: lightblue; ">
+    <table class="fwidth">
+        <tr>
+          <td class="hwidth" style="text-align:left">
+            <h4>Copyright (c) Robert de Kok, PA2RDK</h4>
+          </td>
+          <td style="text-align:right">
+            <a href="/"><button>Main</button></a>
+            <a href="/reboot"><button>Reboot</button></a>
+          </td>
+        </tr>
+    </table>
+  </div>
+
+  <script>
+    if(typeof window.history.pushState == 'function') {
+      if (window.location.href.lastIndexOf('/command')>10 || window.location.href.lastIndexOf('/reboot')>10){
+        console.log(window.location.href);
+        window.location.href =  window.location.href.substring(0,window.location.href.lastIndexOf('/'))
+      }
+    }
+    </script>
+
+  </body>
+  </html>

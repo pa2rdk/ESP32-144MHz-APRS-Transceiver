@@ -1,0 +1,4 @@
+## Ignore files
+
+[Bb]uild/
+rdk_config.h
