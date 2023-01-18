@@ -274,7 +274,7 @@ const int ledFreq          = 5000;
 const int ledResol         = 8;
 const int ledChannelforTFT = 0;
 
-#include "config.h";
+#include "rdk_config.h";                  // Change to config.h
 
 TFT_eSPI tft = TFT_eSPI();            // Invoke custom library
 WiFiMulti wifiMulti;
@@ -400,6 +400,7 @@ void setup(){
 
     server.on("/store", HTTP_GET, [] (AsyncWebServerRequest *request) {
       saveSettings(request);
+      saveConfig();
       request->send(SPIFFS, "/settings.html", String(), false, processor);
     });
 
