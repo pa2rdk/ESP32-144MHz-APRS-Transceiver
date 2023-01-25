@@ -96,6 +96,13 @@
       window.location.href =  window.location.href.substring(0,window.location.href.lastIndexOf('/'))
     }
   }
+
+  document.getElementById('BTNFreq').onclick = function(e){
+    var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/nummers';
+    //alert(s);
+    window.location.href = s;  
+    return false;
+  }
   </script>
   </body>
   </html>

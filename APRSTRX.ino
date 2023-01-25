@@ -56,6 +56,7 @@
 #define BTN_PREV        8192
 #define BTN_CLOSE       4096
 #define BTN_ARROW       2048
+#define BTN_NUMERIC     1024
 
 #define RXD2            16
 #define TXD2            17
@@ -92,15 +93,15 @@ typedef struct  // WiFi Access
 
 typedef struct  // Frequency parts
 {
-  int fFull;
-  int fPart;
+  int fMHz;
+  int fKHz;
 } SFreq;
 
 typedef struct // Buttons
 {
-    const char *Name;     // Buttonname
-    const char *Caption;  // Buttoncaption
-    char Waarde[12];  // Buttontext
+    const char *name;     // Buttonname
+    const char *caption;  // Buttoncaption
+    char waarde[12];  // Buttontext
     uint16_t pageNo;
     uint16_t xPos;          
     uint16_t yPos; 
@@ -136,29 +137,27 @@ const Button buttons[] = {
     {"Power","Power","",        4,  2,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
     {"SetBand","Band","",       4, 82,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
     {"Light","Light","",        4,162,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Calibrate","Calibrate","",4,242,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"Calibrate","Calibrate","",4,242,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},   
 
-    {"Prev","Prev","",   BTN_PREV,  2,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Next","Next","",   BTN_NEXT,242,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"ToLeft","<<","",    BTN_NAV,  2,208,154,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"ToRight",">>","",   BTN_NAV,162,208,154,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Navigate","Freq","",BTN_NAV,  2,208,314,30, TFT_BLUE, TFT_BUTTONCOLOR},   
-    {"Close","Close","",BTN_CLOSE,122,208, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},    
-};
+    {"A001","1","",     BTN_NUMERIC, 42,100,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"A002","2","",     BTN_NUMERIC,122,100,74,30, TFT_BLUE, TFT_BUTTONCOLOR},    
+    {"A003","3","",     BTN_NUMERIC,202,100,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"A004","4","",     BTN_NUMERIC, 42,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},  
+    {"A005","5","",     BTN_NUMERIC,122,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"A006","6","",     BTN_NUMERIC,202,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},    
+    {"A007","7","",     BTN_NUMERIC, 42,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"A008","8","",     BTN_NUMERIC,124,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR}, 
+    {"A009","9","",     BTN_NUMERIC,202,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"Clear","Clear","",BTN_NUMERIC, 42,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR}, 
+    {"A000","0","",     BTN_NUMERIC,122,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR},       
+    {"Enter","Enter","",BTN_NUMERIC,202,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR},  
 
-const Button buttons2[] = {
-    {"A001","1","",             8,  2,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"A002","2","",             8, 82,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},    
-    {"A003","3","",             8,162,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"A004","4","",             8,242,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},  
-    {"A005","5","",             8,  2,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"A006","6","",             8, 82,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR},    
-    {"A007","7","",             8,162,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"A008","8","",             8,242,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR}, 
-    {"A009","9","",             8, 82,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"A000","0","",             8,162,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR},   
-    {"A00C",".","",             8,242,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR},     
-    {"Enter","Enter","",        8,  2,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR},  
+    {"Prev","Prev","",     BTN_PREV,  2,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"Next","Next","",     BTN_NEXT,242,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"ToLeft","<<","",      BTN_NAV,  2,208,154,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"ToRight",">>","",     BTN_NAV,162,208,154,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"Navigate","Freq","",  BTN_NAV,  2,208,314,30, TFT_BLUE, TFT_BUTTONCOLOR},   
+    {"Close","Close","",  BTN_CLOSE,122,208, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},     
 };
 
 typedef struct {
@@ -225,8 +224,8 @@ typedef struct {
 
 typedef struct // Repeaterlist
 {
-    const char *Name;     // Buttonname
-    const char *City;  // Buttoncaption
+    const char *name;     // Repeatername
+    const char *city;  // Repeatercity
     int8_t shift;
     uint16_t channel;          
     uint16_t ctcssTone; 
@@ -266,6 +265,7 @@ int scanMode              = SCAN_STOPPED;
 uint16_t lastCourse       = 0;
 char httpBuf[120]         = "\0";
 char buf[300]             = "\0";
+int32_t keyboardNumber    = 0;
 
 AX25Msg incomingPacket;
 uint8_t *packetData;
@@ -323,25 +323,25 @@ void setup(){
   for (int i = 0; i < sizeof(wifiNetworks)/sizeof(wifiNetworks[0]); i++ )
       wifiMulti.addAP(wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
 
-  drawButton(80,80,160,30,"Connecting to WiFi","",TFT_RED,TFT_WHITE,"");
+  DrawButton(80,80,160,30,"Connecting to WiFi","",TFT_RED,TFT_WHITE,"");
 
   if (!EEPROM.begin(EEPROM_SIZE)){
-    drawButton(80,120,160,30,"EEPROM Failed","",TFT_RED,TFT_WHITE,"");
+    DrawButton(80,120,160,30,"EEPROM Failed","",TFT_RED,TFT_WHITE,"");
     Serial.println("failed to initialise EEPROM"); 
     while(1);
   } 
 
-  if (!loadConfig()){
+  if (!LoadConfig()){
     Serial.println(F("Writing defaults"));
-    saveConfig();
+    SaveConfig();
   }
-  loadConfig();
+  LoadConfig();
 
   // show connected SSID
   wifiMulti.addAP(settings.wifiSSID,settings.wifiPass);
-  if (connect2WiFi()){
+  if (Connect2WiFi()){
     wifiAvailable=true;
-    drawButton(80,80,160,30,"Connected to WiFi",WiFi.SSID(),TFT_RED,TFT_WHITE,"");
+    DrawButton(80,80,160,30,"Connected to WiFi",WiFi.SSID(),TFT_RED,TFT_WHITE,"");
     delay(1000);
     udp.begin(localPort);
     syncTime();
@@ -355,8 +355,8 @@ void setup(){
   if (settings.repeater>0 && !settings.isUHF) activeBtn="RPT";
   freqType = activeBtn;
   digitalWrite(HIPOWERPIN, !settings.draPower); // low power from DRA
-  setDraVolume(settings.volume);
-  setDraSettings();
+  SetDraVolume(settings.volume);
+  SetDraSettings();
   APRS_init(ADC_REFERENCE, OPEN_SQUELCH);
   APRS_setCallsign(settings.call,settings.ssid);
   APRS_setDestination(settings.dest,settings.destSsid);
@@ -368,16 +368,16 @@ void setup(){
   APRS_setDirectivity(settings.directivity);
   APRS_setPreamble(settings.preAmble);
   APRS_setTail(settings.tail);
-  APRS_setLat(deg2Nmea(settings.lat,true));
-  APRS_setLon(deg2Nmea(settings.lon,false));
+  APRS_setLat(Deg2Nmea(settings.lat,true));
+  APRS_setLon(Deg2Nmea(settings.lon,false));
   APRS_printSettings();
 
-  aprsGatewayUpdate();
+  APRSGatewayUpdate();
   aprsGatewayRefreshed = millis();
 
   if (wifiAvailable || wifiAPMode){
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-      request->send(SPIFFS, "/index.html", String(), false, processor);
+      request->send(SPIFFS, "/index.html", String(), false, Processor);
     });
 
     server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -386,11 +386,15 @@ void setup(){
 
     server.on("/command", HTTP_GET, [] (AsyncWebServerRequest *request) {
       if (request->hasParam("button")) commandButton = request->getParam("button")->value();
-      request->send(SPIFFS, "/index.html", String(), false, processor);
+      request->send(SPIFFS, "/index.html", String(), false, Processor);
     });
 
     server.on("/settings", HTTP_GET, [] (AsyncWebServerRequest *request) {
-      request->send(SPIFFS, "/settings.html", String(), false, processor);
+      request->send(SPIFFS, "/settings.html", String(), false, Processor);
+    });
+
+    server.on("/nummers", HTTP_GET, [] (AsyncWebServerRequest *request) {
+      request->send(SPIFFS, "/nummers.html", String(), false, Processor);
     });
 
     server.on("/reboot", HTTP_GET, [] (AsyncWebServerRequest *request) {
@@ -399,9 +403,9 @@ void setup(){
     });
 
     server.on("/store", HTTP_GET, [] (AsyncWebServerRequest *request) {
-      saveSettings(request);
-      saveConfig();
-      request->send(SPIFFS, "/settings.html", String(), false, processor);
+      SaveSettings(request);
+      SaveConfig();
+      request->send(SPIFFS, "/settings.html", String(), false, Processor);
     });
 
     events.onConnect([](AsyncEventSourceClient *client){
@@ -416,10 +420,10 @@ void setup(){
     server.begin();
     Serial.println("HTTP server started");
   }
-  drawScreen();
+  DrawScreen();
 }
 
-bool connect2WiFi(){
+bool Connect2WiFi(){
   startTime = millis();
   Serial.print("Connect to Multi WiFi");
   while (wifiMulti.run() != WL_CONNECTED && millis()-startTime<30000){
@@ -438,12 +442,12 @@ void loop(){
 
   if (commandButton>""){
     if (commandButton=="ToLeft" || commandButton=="ToRight"){
-      handleButton(commandButton,-1,0);
+      HandleButton(commandButton,-1,0);
     } else {
-      handleButton(commandButton);
+      HandleButton(commandButton);
     }
     commandButton = "";
-    clearButtons();
+    ClearButtons();
   }
 
   if (scanMode==SCAN_INPROCES){
@@ -451,7 +455,7 @@ void loop(){
       settings.rxChannel++;
       if (!settings.isUHF && settings.rxChannel==settings.maxChannel) settings.rxChannel=0;
       if (settings.isUHF && settings.rxChannel==settings.maxUHFChannel) settings.rxChannel=settings.minUHFChannel;
-      setFreq(0, settings.rxChannel, 0, false);
+      SetFreq(0, settings.rxChannel, 0, false);
     }    
     if (freqType=="RPT"){
       if (settings.repeater<(sizeof(repeaters)/sizeof(repeaters[0]))-1) settings.repeater++; else settings.repeater=1;
@@ -459,48 +463,42 @@ void loop(){
       settings.txShift = repeaters[settings.repeater].shift;
       settings.ctcssTone = repeaters[settings.repeater].ctcssTone;
       settings.hasTone = repeaters[settings.repeater].hasTone;
-      setFreq(0, settings.rxChannel, settings.txShift + 10, false);
-      drawButton("RPT");
+      SetFreq(0, settings.rxChannel, settings.txShift + 10, false);
+      DrawButton("RPT");
     }
-    drawFrequency(false);
-    drawButton("Shift");
-    drawButton("Reverse");
-    drawButton("Tone");
-    refreshWebPage();
+    DrawFrequency(false);
+    DrawButton("Shift");
+    DrawButton("Reverse");
+    DrawButton("Tone");
+    RefreshWebPage();
     delay(100);
   }
 
   uint16_t x = 0, y = 0;
   bool pressed = tft.getTouch(&x, &y);
   if (pressed) {
-    Serial.print("x,y = ");
-    Serial.print(x);
-    Serial.print(",");
-    Serial.print(y);
-    Serial.print(" - ");
-    int showVal = showControls();
+    int showVal = ShowControls();
     for (int i=0; i<sizeof(buttons)/sizeof(buttons[0]); i++) {
       if ((buttons[i].pageNo&showVal)>0){
         if (x >= buttons[i].xPos && x <= buttons[i].xPos+buttons[i].width && y >= buttons[i].yPos && y <= buttons[i].yPos+buttons[i].height){
-          Serial.print(buttons[i].Name);
+          Serial.print(buttons[i].name);
           Serial.print(" pressed:");
           delay(100);
-          handleButton(buttons[i],x,y);
+          HandleButton(buttons[i],x,y);
         }
       }
     }
   }
-  waitForWakeUp();
+  WaitForWakeUp();
 
   bool sql = digitalRead(SQUELSHPIN);
   if (sql !=squelshClosed){
-    Serial.println(sql?"true":"false");
     squelshClosed = sql;
-    drawFrequency(false);
+    DrawFrequency(false);
     if (scanMode==SCAN_INPROCES && !squelshClosed){
       digitalWrite(MUTEPIN,isMuted);
       scanMode=(settings.scanType==SCAN_TYPE_STOP)?SCAN_STOPPED:SCAN_PAUSED;
-      drawButton("Scan");
+      DrawButton("Scan");
     }
   }
 
@@ -512,7 +510,7 @@ void loop(){
     if (millis()-waitForResume>3000){
       digitalWrite(MUTEPIN,1);
       scanMode=SCAN_INPROCES;
-      drawButton("Scan");
+      DrawButton("Scan");
       waitForResume=0;
     }
   }      
@@ -525,22 +523,19 @@ void loop(){
       btnValue = analogRead(BTNSMIKEPIN);
     }
     if (millis()-startPress>2000){
-      Serial.println("Scan from mike");
-      Button button = findButtonByName("Scan");
-      handleButton(button,-1,0);
+      Button button = FindButtonByName("Scan");
+      HandleButton(button,-1,0);
       delay(200);
     } else {
       if (firstBtnValue<2){
-        Serial.println("Line BTN Up");
-        Button button = findButtonByName("ToRight");
-        handleButton(button,-1,0);
+        Button button = FindButtonByName("ToRight");
+        HandleButton(button,-1,0);
         delay(200);
       }
 
       if (firstBtnValue>1 && firstBtnValue<2048){
-        Serial.println("Line BTN Down");
-        Button button = findButtonByName("ToLeft");
-        handleButton(button,-1,0);
+        Button button = FindButtonByName("ToLeft");
+        HandleButton(button,-1,0);
         delay(200);
       }
     }
@@ -549,33 +544,28 @@ void loop(){
 
 
   if (minute()!=lastMinute){
-    Serial.println("Refresh minute");
     syncTime();
-    if (actualPage<lastPage && wifiAvailable) drawTime();
+    if (actualPage<lastPage && wifiAvailable) DrawTime();
     lastMinute = minute();
   }
-
-  // while (Serial2.available()) {
-  //   Serial.print(char(Serial2.read()));
-  // }
 
   while (Serial2.available()) gps.encode(Serial2.read());
   if (millis()-gpsTime>1000){
     gpsTime = millis();
-    printGPSInfo();
+    PrintGPSInfo();
   }
 
-  bool isFromPTT = checkAndSetPTT(false);
+  bool isFromPTT = CheckAndSetPTT(false);
 
   if (millis()-saveTime>10000 && scanMode==SCAN_STOPPED){
     saveTime = millis();
-    if (!compareConfig()) saveConfig();
+    if (!CompareConfig()) SaveConfig();
   }
 
   if (millis()-activeBtnStart>10000){
     if (activeBtn!=freqType){
       activeBtn=freqType;
-      drawButtons();
+      DrawButtons();
     }
   }
 
@@ -601,27 +591,27 @@ void loop(){
     if (doBeacon) {
       lastBeacon = millis();
       lastCourse = gps.course.isValid()?gps.course.deg():-1;
-      sendBeacon(false, (isFromPTT && settings.bcnAfterTX));
+      SendBeacon(false, (isFromPTT && settings.bcnAfterTX));
     }
   }
 
   if (millis()-aprsGatewayRefreshed>(settings.aprsGatewayRefreshTime*1000)){
-    aprsGatewayUpdate();
+    APRSGatewayUpdate();
     aprsGatewayRefreshed = millis();
   }
 
   if ((millis() - webRefresh) > 2000) {
-    refreshWebPage();
+    RefreshWebPage();
   }
 
   if (actualPage==debugPage && millis()-startedDebugScreen>3000){
     actualPage = beforeDebugPage;
     beforeDebugPage = 0;
-    drawScreen();
+    DrawScreen();
   }
 }
 
-void waitForWakeUp(){
+void WaitForWakeUp(){
   delay(10);
   while (!isOn){
     uint16_t x = 0, y = 0;
@@ -630,7 +620,7 @@ void waitForWakeUp(){
   }
 }
 
-bool checkAndSetPTT(bool isAPRS){
+bool CheckAndSetPTT(bool isAPRS){
   bool retVal = false;
   bool isPTTIN = !digitalRead(PTTIN);
   if (isMOX || isPTTIN) isPTT = 1; else isPTT=0;
@@ -638,19 +628,18 @@ bool checkAndSetPTT(bool isAPRS){
   if (isPTT && scanMode!=SCAN_STOPPED){
     digitalWrite(MUTEPIN,isMuted);
     scanMode=SCAN_STOPPED;
-    drawButton("Scan");
+    DrawButton("Scan");
     delay(1000);
   } else {
     if (isPTTIN && isMOX) isMOX=false;
     if (lastPTT != isPTT && (!settings.isUHF || isAPRS)){
       digitalWrite(MUTEPIN,isPTT?true:isMuted);
-      Serial.print("PTT=");
-      Serial.println(isPTT?"True":"False");
+      Serial.println("PTT=" + isPTT?"True":"False");
       lastPTT = isPTT;
       if (!isPTT && !isAPRS) retVal = true;
       digitalWrite(PTTOUT,isPTT);
-      drawButton("MOX");
-      drawFrequency(isAPRS);
+      DrawButton("MOX");
+      DrawFrequency(isAPRS);
       delay(10);
     }
   }
@@ -685,65 +674,65 @@ void aprs_msg_callback(struct AX25Msg *msg) {
 /***************************************************************************************
 **            APRS Send beacon
 ***************************************************************************************/
-void sendBeacon(bool manual, bool afterTX){
+void SendBeacon(bool manual, bool afterTX){
   if (gps.location.age()<5000 || manual || settings.isDebug){
-    showDebugScreen("Send beacon");
-    if ((!wifiAvailable || !aprsGatewayConnect() || settings.isDebug) && (squelshClosed || afterTX)) sendBeaconViaRadio(); // || settings.isDebug
-    if (wifiAvailable && aprsGatewayConnect()) sendBeaconViaWiFi();
+    ShowDebugScreen("Send beacon");
+    if ((!wifiAvailable || !APRSGatewayConnect() || settings.isDebug) && (squelshClosed || afterTX)) SendBeaconViaRadio(); // || settings.isDebug
+    if (wifiAvailable && APRSGatewayConnect()) SendBeaconViaWiFi();
   }
 }
 
-void sendBeaconViaRadio(){
+void SendBeaconViaRadio(){
   if (!isPTT){
-    drawDebugInfo("Send beacon via radio..");
+    DrawDebugInfo("Send beacon via radio..");
     int lastScanMode = scanMode; 
     scanMode = SCAN_STOPPED;
     if (lastScanMode!=SCAN_STOPPED) delay(500);
-    setFreq(0, 0, 0, true);
+    SetFreq(0, 0, 0, true);
     isMOX = 1;
-    checkAndSetPTT(true);
+    CheckAndSetPTT(true);
     delay(500);
 
     if (gps.location.age()>5000){
-      APRS_setLat(deg2Nmea(settings.lat,true));
-      APRS_setLon(deg2Nmea(settings.lon,false));
+      APRS_setLat(Deg2Nmea(settings.lat,true));
+      APRS_setLon(Deg2Nmea(settings.lon,false));
     } else {
-      APRS_setLat(deg2Nmea(gps.location.lat(),true));
-      APRS_setLon(deg2Nmea(gps.location.lng(),false));
+      APRS_setLat(Deg2Nmea(gps.location.lat(),true));
+      APRS_setLon(Deg2Nmea(gps.location.lng(),false));
     }
 
     APRS_sendLoc(settings.comment, strlen(settings.comment));
 
     isMOX = 0;
-    checkAndSetPTT(false);
+    CheckAndSetPTT(false);
     delay(500);
-    setFreq(0, settings.rxChannel, settings.txShift+10, false);
-    drawFrequency(false);
+    SetFreq(0, settings.rxChannel, settings.txShift+10, false);
+    DrawFrequency(false);
     delay(200);
     scanMode = lastScanMode;
     if (scanMode==SCAN_INPROCES) digitalWrite(MUTEPIN,true);
   }
 }
 
-void sendBeaconViaWiFi(){
-  if (aprsGatewayConnect()){
+void SendBeaconViaWiFi(){
+  if (APRSGatewayConnect()){
     String sLat;
     String sLon;
     if (gps.location.age()>5000){
-      sLat = deg2Nmea(settings.lat,true);
-      sLon = deg2Nmea(settings.lon,false);
+      sLat = Deg2Nmea(settings.lat,true);
+      sLon = Deg2Nmea(settings.lon,false);
     } else {
-      sLat = deg2Nmea(gps.location.lat(),true);
-      sLon = deg2Nmea(gps.location.lng(),false);
+      sLat = Deg2Nmea(gps.location.lat(),true);
+      sLon = Deg2Nmea(gps.location.lng(),false);
     }
     sprintf(buf,"%s-%d>%s:=%s/%s&PHG5000%s",settings.call,settings.ssid,settings.dest,sLat,sLon,settings.comment);
-    drawDebugInfo(buf);
+    DrawDebugInfo(buf);
     httpNet.println(buf);
-    if (readHTTPNet()) drawDebugInfo(buf);
+    if (ReadHTTPNet()) DrawDebugInfo(buf);
   }
 }
 
-char* deg2Nmea(float fdeg, boolean is_lat) {
+char* Deg2Nmea(float fdeg, boolean is_lat) {
   long deg = fdeg*1000000;
   bool is_negative=0;
   if (deg < 0) is_negative=1;
@@ -778,29 +767,29 @@ char* deg2Nmea(float fdeg, boolean is_lat) {
 /***************************************************************************************
 **            Calculate frequency parts before and after decimal sign
 ***************************************************************************************/
- SFreq getFreq(int channel){
-  int freq = channel;
-  int fFull = 0;
-  while (freq>=80){
-    freq-=80;
-    fFull++;
-  }
-  SFreq sFreq = {fFull,freq};
+ SFreq GetFreq(int channel){
+  SFreq sFreq = GetFreq(channel,80);
+  return sFreq;
+}
+
+ SFreq GetFreq(int channel, int steps){
+  int fMHz = floor(channel/steps) + 144;
+  int fKHz = (channel - (floor(channel/steps)*steps))*(10000/steps);
+  SFreq sFreq = {fMHz,fKHz};
   return sFreq;
 }
 
 /***************************************************************************************
 **            Draw screen
 ***************************************************************************************/
-void drawScreen(){
+void DrawScreen(){
   tft.fillScreen(TFT_BLACK);
-  if (actualPage<lastPage){
-    drawFrequency(false);
-  }
-  drawButtons();
+  if (actualPage<lastPage) DrawFrequency(false);
+  if (actualPage==BTN_NUMERIC) DrawKeyboardNumber(false);
+  DrawButtons();
 }
 
-void showDebugScreen(char header[]){
+void ShowDebugScreen(char header[]){
   startedDebugScreen=millis();
   debugLine = 0;
   if (actualPage!=debugPage) beforeDebugPage = actualPage;
@@ -813,22 +802,39 @@ void showDebugScreen(char header[]){
   tft.setTextColor(TFT_GREEN,TFT_BLACK);
 }
 
-void drawDebugInfo(char debugInfo[]){
+void DrawKeyboardNumber(bool doReset){
+  tft.setTextDatum(MC_DATUM);
+  sprintf(buf,"%s",activeBtn);
+  tft.setTextPadding(tft.textWidth(buf));
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.drawString(buf,162,15,4);
+
+  tft.setTextDatum(MR_DATUM);
+  if (doReset) keyboardNumber = 0;
+  int f1 = floor(keyboardNumber/10000);
+  int f2 = keyboardNumber-(f1*10000);
+  int fBand=settings.isUHF?430:140;
+  if (activeBtn=="Freq") sprintf(buf,"%01d.%04d",fBand+f1,f2); else sprintf(buf,"%1d",keyboardNumber);
+  tft.setTextPadding(tft.textWidth(buf));
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString(buf, 282,60,7);
+}
+
+void DrawDebugInfo(char debugInfo[]){
   if (beforeDebugPage>0) tft.drawString(debugInfo,2,25+(debugLine*8),1);
   Serial.println(debugInfo);
   debugLine++;
 }
-
 /***************************************************************************************
 **            Draw frequencies
 ***************************************************************************************/
-void drawFrequency(bool isAPRS){
+void DrawFrequency(bool isAPRS){
   if (actualPage<lastPage){
-    int freq, fFull;
+    int freq, fMHz;
 
     tft.setTextDatum(ML_DATUM);
-    SFreq sFreq = getFreq(settings.aprsChannel);
-    sprintf(buf,"APRS:%01d.%03d, %s-%d, %s-%d",144+sFreq.fFull,sFreq.fPart*125,settings.call,settings.ssid,settings.dest,settings.destSsid);
+    SFreq sFreq = GetFreq(settings.aprsChannel);
+    sprintf(buf,"APRS:%01d.%03d, %s-%d, %s-%d",sFreq.fMHz,sFreq.fKHz,settings.call,settings.ssid,settings.dest,settings.destSsid);
     tft.setTextPadding(tft.textWidth(buf));
     tft.setTextColor(TFT_CYAN, TFT_BLACK);
     if (settings.useAPRS) tft.drawString(buf,2,24,1);
@@ -843,19 +849,20 @@ void drawFrequency(bool isAPRS){
 
     int txChannel = isAPRS?settings.aprsChannel:settings.txChannel;
     int rxChannel = isAPRS?settings.aprsChannel:settings.rxChannel;
-    if (isPTT^isReverse) sFreq = getFreq(txChannel); else sFreq = getFreq(rxChannel);
-    sprintf(buf,"%01d.%04d",144+sFreq.fFull,sFreq.fPart*125);
+    if (isPTT^isReverse) sFreq = GetFreq(txChannel); else sFreq = GetFreq(rxChannel);
+    Serial.printf("%01d.%04d",sFreq.fMHz,sFreq.fKHz);
+    sprintf(buf,"%01d.%04d",sFreq.fMHz,sFreq.fKHz);
     tft.setTextPadding(tft.textWidth(buf));
     if (isPTT) tft.setTextColor(TFT_RED, TFT_BLACK); else tft.setTextColor(squelshClosed?TFT_GOLD:TFT_GREEN, TFT_BLACK);
     tft.drawString(buf, 315,60,7);
 
-    if (isPTT^isReverse) sFreq = getFreq(rxChannel); else sFreq = getFreq(txChannel);
-    sprintf(buf,"%01d.%04d",144+sFreq.fFull,sFreq.fPart*125);
+    if (isPTT^isReverse) sFreq = GetFreq(rxChannel); else sFreq = GetFreq(txChannel);
+    sprintf(buf,"%01d.%04d",sFreq.fMHz,sFreq.fKHz);
     tft.fillRect(100,86,165,8,TFT_BLACK);
-    tft.setTextPadding(tft.textWidth(repeaters[settings.repeater].Name));
-    tft.drawString(repeaters[settings.repeater].Name, 140,90,1);
-    tft.setTextPadding(tft.textWidth(repeaters[settings.repeater].City));
-    tft.drawString(repeaters[settings.repeater].City, 220,90,1);
+    tft.setTextPadding(tft.textWidth(repeaters[settings.repeater].name));
+    tft.drawString(repeaters[settings.repeater].name, 140,90,1);
+    tft.setTextPadding(tft.textWidth(repeaters[settings.repeater].city));
+    tft.drawString(repeaters[settings.repeater].city, 220,90,1);
     tft.setTextPadding(tft.textWidth(buf));
     tft.drawString(buf, 315,90,1);
     if (isPTT){
@@ -865,14 +872,14 @@ void drawFrequency(bool isAPRS){
       tft.setTextColor(TFT_BLACK, TFT_RED);
       tft.drawString("TX", 50,62,4);
     } else  tft.fillCircle(50,60,24,TFT_BLACK);
-    drawMeter(2, 100, 314, 30, isPTT?4:10, isPTT);
+    DrawMeter(2, 100, 314, 30, isPTT?4:10, isPTT);
   }
 }
 
 /***************************************************************************************
 **            Draw the time
 ***************************************************************************************/
-void drawTime(){
+void DrawTime(){
 
   // Convert UTC to local time, returns zone code in tz1_Code, e.g "GMT"
   time_t local_time = TIMEZONE.toLocal(now(), &tz1_Code);
@@ -889,18 +896,16 @@ void drawTime(){
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
   tft.setTextPadding(tft.textWidth("Time:44:44 "));  // String width + margin
   tft.drawString(timeNow, 2, 4, 1);
-  Serial.print("Time:");
-  Serial.println(timeNow);
 }
 
 /***************************************************************************************
 **            Draw meter
 ***************************************************************************************/
-void drawMeter(int xPos, int yPos, int width, int height, int value, bool isTX){
+void DrawMeter(int xPos, int yPos, int width, int height, int value, bool isTX){
   if (!isTX) value = squelshClosed?0:10;
   if (isTX) value = settings.draPower?9:4;
   tft.setTextDatum(MC_DATUM);
-  drawBox(xPos, yPos, width, height);
+  DrawBox(xPos, yPos, width, height);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.setTextPadding(tft.textWidth("S"));
   tft.drawString(isTX?"P":"S", xPos+20, yPos+(height/2)+1, 4);
@@ -938,37 +943,37 @@ void drawMeter(int xPos, int yPos, int width, int height, int value, bool isTX){
 **            Find buttons, button values and colors
 **            Draw box
 ***************************************************************************************/
-void drawButtons(){
+void DrawButtons(){
   for (int i=0; i<sizeof(buttons)/sizeof(buttons[0]); i++) {
-    int showVal = showControls();
+    int showVal = ShowControls();
     if ((buttons[i].pageNo&showVal)>0){
-      Button button = findButtonInfo(buttons[i]);
+      Button button = FindButtonInfo(buttons[i]);
       button.bckColor = TFT_BUTTONCOLOR;
-      if (String(button.Name) == activeBtn) button.bckColor = TFT_WHITE;
-      drawButton(button.xPos,button.yPos,button.width,button.height,button.Caption,button.Waarde,button.btnColor,button.bckColor,button.Name);
+      if (String(button.name) == activeBtn) button.bckColor = TFT_WHITE;
+      DrawButton(button.xPos,button.yPos,button.width,button.height,button.caption,button.waarde,button.btnColor,button.bckColor,button.name);
     }
   }
 }
 
-void drawButton(String btnName){
-  drawButton(btnName,0);
+void DrawButton(String btnName){
+  DrawButton(btnName,0);
 }
 
-void drawButton(String btnName, uint16_t btnColor){
-  int showVal = showControls();
+void DrawButton(String btnName, uint16_t btnColor){
+  int showVal = ShowControls();
   for (int i=0; i<sizeof(buttons)/sizeof(buttons[0]); i++) {
-    if (String(buttons[i].Name)==btnName && ((buttons[i].pageNo&showVal)>0)){
-      Button button = findButtonInfo(buttons[i]);
+    if (String(buttons[i].name)==btnName && ((buttons[i].pageNo&showVal)>0)){
+      Button button = FindButtonInfo(buttons[i]);
       if (btnColor==0) btnColor = button.btnColor; 
-      if (String(button.Name) == activeBtn) button.bckColor = TFT_WHITE;
-      drawButton(button.xPos,button.yPos,button.width,button.height,button.Caption,button.Waarde,btnColor,button.bckColor,button.Name);
+      if (String(button.name) == activeBtn) button.bckColor = TFT_WHITE;
+      DrawButton(button.xPos,button.yPos,button.width,button.height,button.caption,button.waarde,btnColor,button.bckColor,button.name);
     }
   }
 }
 
-void drawButton(int xPos, int yPos, int width, int height, String caption, String waarde, uint16_t btnColor, uint16_t bckColor, String Name){
+void DrawButton(int xPos, int yPos, int width, int height, String caption, String waarde, uint16_t btnColor, uint16_t bckColor, String Name){
   tft.setTextDatum(MC_DATUM);
-  drawBox(xPos, yPos, width, height);
+  DrawBox(xPos, yPos, width, height);
 
   tft.fillRoundRect(xPos + 2,yPos + 2, width-4, (height/2)+1, 3, bckColor);
   tft.setTextPadding(tft.textWidth(caption));
@@ -996,120 +1001,121 @@ void drawButton(int xPos, int yPos, int width, int height, String caption, Strin
   }
 }
 
-int showControls(){
+int ShowControls(){
   int retVal = actualPage;
   if (actualPage == 1) retVal = retVal + BTN_NAV + BTN_NEXT;
   if (actualPage >1 && actualPage <lastPage) retVal = retVal + BTN_ARROW + BTN_NEXT + BTN_PREV;
-  if (actualPage >= lastPage) retVal = retVal + BTN_CLOSE;
+  if (actualPage == lastPage) retVal = retVal + BTN_CLOSE;
   return retVal;
 }
 
-Button findButtonByName(String Name){
+Button FindButtonByName(String Name){
   for (int i=0; i<sizeof(buttons)/sizeof(buttons[0]); i++) {
-    if (String(buttons[i].Name)==Name) return findButtonInfo(buttons[i]);
+    if (String(buttons[i].name)==Name) return FindButtonInfo(buttons[i]);
   }
   return buttons[0];
 }
 
-Button findButtonInfo(Button button){
-  if (button.Name=="Shift"){
+Button FindButtonInfo(Button button){
+  char buttonBuf[10] = "\0";
+  if (button.name=="Shift"){
     if (settings.txShift==SHIFT_NONE){
       button.btnColor = TFT_BLUE;
-      strcpy(button.Waarde,"None");
+      strcpy(button.waarde,"None");
     } 
     if (settings.txShift==SHIFT_NEG){
       button.btnColor= TFT_RED;
-      strcpy(button.Waarde,"-600");
+      strcpy(button.waarde,"-600");
     }
     if (settings.txShift==SHIFT_POS){
       button.btnColor= TFT_GREEN;
-      strcpy(button.Waarde,"600");
+      strcpy(button.waarde,"600");
     } 
   }
 
-  if (button.Name=="MOX"){
+  if (button.name=="MOX"){
     if (!isMOX){
       button.btnColor = TFT_BLUE;
-      strcpy(button.Waarde,"");
+      strcpy(button.waarde,"");
     } else {
       button.btnColor= TFT_RED;
-      strcpy(button.Waarde,"PTT");
+      strcpy(button.waarde,"PTT");
     }
   }
 
-  if (button.Name=="Reverse"){
+  if (button.name=="Reverse"){
     if (!isReverse){
       button.btnColor = TFT_BLUE;
-      strcpy(button.Waarde,"");
+      strcpy(button.waarde,"");
     } else {
       button.btnColor= TFT_RED;
-      strcpy(button.Waarde,"On");
+      strcpy(button.waarde,"On");
     }
   }
 
-  if (button.Name=="Vol") {
-    sprintf(buf,"%d",settings.volume);
-    strcpy(button.Waarde,buf);
+  if (button.name=="Vol") {
+    sprintf(buttonBuf,"%d",settings.volume);
+    strcpy(button.waarde,buttonBuf);
   }
 
-  if (button.Name=="SQL") {
-    sprintf(buf,"%d",settings.squelsh);
-    strcpy(button.Waarde,buf);
+  if (button.name=="SQL") {
+    sprintf(buttonBuf,"%d",settings.squelsh);
+    strcpy(button.waarde,buttonBuf);
   }
 
-  if (button.Name=="Light") {
-    sprintf(buf,"%d",settings.currentBrightness);
-    strcpy(button.Waarde,buf);
+  if (button.name=="Light") {
+    sprintf(buttonBuf,"%d",settings.currentBrightness);
+    strcpy(button.waarde,buttonBuf);
   }
 
-  if (button.Name=="Tone") {
+  if (button.name=="Tone") {
     String s;
     if (settings.hasTone==TONETYPERX) s="R ";
     if (settings.hasTone==TONETYPETX) s="T ";
     if (settings.hasTone==TONETYPERXTX) s="RT ";
-    sprintf(buf,"%s %s", s, settings.hasTone>TONETYPENONE?cTCSSCodes[settings.ctcssTone].tone:"");
-    strcpy(button.Waarde,buf);
+    sprintf(buttonBuf,"%s %s", s, settings.hasTone>TONETYPENONE?cTCSSCodes[settings.ctcssTone].tone:"");
+    strcpy(button.waarde,buttonBuf);
   }
 
-  if (button.Name=="RPT") {
-    sprintf(buf,"%s", repeaters[settings.repeater].Name);
-    strcpy(button.Waarde,buf);
+  if (button.name=="RPT") {
+    sprintf(buttonBuf,"%s", repeaters[settings.repeater].name);
+    strcpy(button.waarde,buttonBuf);
   }
 
-  if (button.Name=="Navigate") {
-    if (activeBtn=="Freq") sprintf(buf,"%s", "Freq");
-    else if (activeBtn=="Vol") sprintf(buf,"%s", "Vol");
-    else if (activeBtn=="SQL") sprintf(buf,"%s", "SQL");
-    else if (activeBtn=="Tone") sprintf(buf,"%s", "Tone");
-    else if (activeBtn=="RPT") sprintf(buf,"%s", "RPT");
-    else if (activeBtn=="Light") sprintf(buf,"%s", "Light");
-    else if (activeBtn=="Scan") sprintf(buf,"%s", "Scan");
-    else sprintf(buf,"%s", "< >");
-    button.Caption = buf;
+  if (button.name=="Navigate") {
+    if (activeBtn=="Freq") sprintf(buttonBuf,"%s", "Freq");
+    else if (activeBtn=="Vol") sprintf(buttonBuf,"%s", "Vol");
+    else if (activeBtn=="SQL") sprintf(buttonBuf,"%s", "SQL");
+    else if (activeBtn=="Tone") sprintf(buttonBuf,"%s", "Tone");
+    else if (activeBtn=="RPT") sprintf(buttonBuf,"%s", "RPT");
+    else if (activeBtn=="Light") sprintf(buttonBuf,"%s", "Light");
+    else if (activeBtn=="Scan") sprintf(buttonBuf,"%s", "Scan");
+    else sprintf(buttonBuf,"%s", "< >");
+    button.caption = buttonBuf;
   }
 
-  if (button.Name=="APRS"){
+  if (button.name=="APRS"){
     if (!settings.useAPRS){
       button.btnColor = TFT_BLUE;
-      strcpy(button.Waarde,"Off");
+      strcpy(button.waarde,"Off");
     } else {
       button.btnColor= TFT_RED;
-      strcpy(button.Waarde,"On");
+      strcpy(button.waarde,"On");
     }
   }
 
-  if (button.Name=="Power"){
-    strcpy(button.Waarde,settings.draPower?"High":"Low");
+  if (button.name=="Power"){
+    strcpy(button.waarde,settings.draPower?"High":"Low");
   }
 
-  if (button.Name=="Mute"){
-    strcpy(button.Waarde,isMuted?"True":"False");
+  if (button.name=="Mute"){
+    strcpy(button.waarde,isMuted?"True":"False");
   }
 
-  if (button.Name=="Scan"){
-    if (settings.scanType==SCAN_TYPE_STOP) sprintf(buf,"%s", "Stop");
-    if (settings.scanType==SCAN_TYPE_RESUME) sprintf(buf,"%s", "Resume");
-    strcpy(button.Waarde,buf);
+  if (button.name=="Scan"){
+    if (settings.scanType==SCAN_TYPE_STOP) sprintf(buttonBuf,"%s", "Stop");
+    if (settings.scanType==SCAN_TYPE_RESUME) sprintf(buttonBuf,"%s", "Resume");
+    strcpy(button.waarde,buttonBuf);
     if (scanMode==SCAN_STOPPED){
       button.btnColor = TFT_BLUE;
     } else if (scanMode==SCAN_INPROCES) {
@@ -1119,20 +1125,20 @@ Button findButtonInfo(Button button){
     }
   }
 
-  if (button.Name=="SetBand"){
+  if (button.name=="SetBand"){
     if (!settings.isUHF){
       button.btnColor = TFT_BLUE;
-      strcpy(button.Waarde,"VHF");
+      strcpy(button.waarde,"VHF");
     } else {
       button.btnColor = TFT_DARKBLUE;
-      strcpy(button.Waarde,"UHF");
+      strcpy(button.waarde,"UHF");
     }
   }
 
   return button;
 }
 
-void drawBox(int xPos, int yPos, int width, int height){
+void DrawBox(int xPos, int yPos, int width, int height){
   tft.drawRoundRect(xPos+2,yPos+2,width,height, 4, TFT_SHADOW);
   tft.drawRoundRect(xPos,yPos,width,height, 3, TFT_WHITE);
   tft.fillRoundRect(xPos + 1,yPos + 1, width-2, height-2, 3, TFT_BLACK);
@@ -1141,18 +1147,18 @@ void drawBox(int xPos, int yPos, int width, int height){
 /***************************************************************************************
 **            Handle button
 ***************************************************************************************/
-void handleButton(String buttonName){
-  Button button = findButtonByName(buttonName);
-  handleButton(button,0,0);
+void HandleButton(String buttonName){
+  Button button = FindButtonByName(buttonName);
+  HandleButton(button,0,0);
 }
 
-void handleButton(String buttonName, int x, int y){
-  Button button = findButtonByName(buttonName);
-  handleButton(button,x,y);
+void HandleButton(String buttonName, int x, int y){
+  Button button = FindButtonByName(buttonName);
+  HandleButton(button,x,y);
 }
 
-void handleButton(Button button, int x, int y){
-  if (button.Name=="ToRight"){
+void HandleButton(Button button, int x, int y){
+  if (button.name=="ToRight"){
     activeBtnStart = millis();
     if (activeBtn=="Freq"){
       float f=(x-button.xPos);
@@ -1160,31 +1166,31 @@ void handleButton(Button button, int x, int y){
       int val=pow(2,floor(f*4));
       if (x==-1) val = 1;
       if (val==8 && settings.isUHF) val = 40;
-      setFreq(val, 0, 0, false);
-      drawFrequency(false);
-      drawButton("Shift");
-      drawButton("Reverse");
+      SetFreq(val, 0, 0, false);
+      DrawFrequency(false);
+      DrawButton("Shift");
+      DrawButton("Reverse");
       delay(200);
     }
     if (activeBtn=="Vol"){
       if (settings.volume<8) settings.volume++;
-      setDraVolume(settings.volume);
-      drawButton("Vol");
-      drawButton("Mute");
+      SetDraVolume(settings.volume);
+      DrawButton("Vol");
+      DrawButton("Mute");
     }
     if (activeBtn=="SQL"){
       if (settings.squelsh<8) settings.squelsh++;
-      setFreq(0, 0, 0, false);
-      drawButton("SQL");
+      SetFreq(0, 0, 0, false);
+      DrawButton("SQL");
     }
     if (activeBtn=="Tone"){
       if (settings.ctcssTone<(sizeof(cTCSSCodes)/sizeof(cTCSSCodes[0]))-1) settings.ctcssTone++;
-      setFreq(0, 0, 0, false);
-      drawButton("Tone");
+      SetFreq(0, 0, 0, false);
+      DrawButton("Tone");
     }
     if (activeBtn=="Scan"){
       if (settings.scanType<1) settings.scanType++;
-      drawButton("Scan");
+      DrawButton("Scan");
     }  
     if (activeBtn=="RPT"){
       if (settings.repeater<(sizeof(repeaters)/sizeof(repeaters[0]))-1) settings.repeater++;
@@ -1192,22 +1198,22 @@ void handleButton(Button button, int x, int y){
       settings.txShift = repeaters[settings.repeater].shift;
       settings.ctcssTone = repeaters[settings.repeater].ctcssTone;
       settings.hasTone = repeaters[settings.repeater].hasTone;
-      setFreq(0, settings.rxChannel, settings.txShift + 10, false);
-      drawFrequency(false);
-      drawButton("RPT");
-      drawButton("Shift");
-      drawButton("Tone");
+      SetFreq(0, settings.rxChannel, settings.txShift + 10, false);
+      DrawFrequency(false);
+      DrawButton("RPT");
+      DrawButton("Shift");
+      DrawButton("Tone");
     }
     if (activeBtn=="Light"){
       if (settings.currentBrightness<100) settings.currentBrightness+=5;
       if (settings.currentBrightness>100) settings.currentBrightness=100;
-      drawButton("Light");
+      DrawButton("Light");
       ledcWrite(ledChannelforTFT, 256-(settings.currentBrightness*2.56));
     }
-    drawButton("Navigate");
+    DrawButton("Navigate");
   }
 
-  if (button.Name=="ToLeft"){
+  if (button.name=="ToLeft"){
     activeBtnStart = millis();
     if (activeBtn=="Freq"){
       float f=button.width-(x-button.xPos);
@@ -1215,31 +1221,31 @@ void handleButton(Button button, int x, int y){
       int val=pow(2,floor(f*4));
       if (x==-1) val = 1;
       if (val==8 && settings.isUHF) val = 40;
-      setFreq(val*-1, 0, 0, false);
-      drawFrequency(false);
-      drawButton("Shift");
-      drawButton("Reverse");
+      SetFreq(val*-1, 0, 0, false);
+      DrawFrequency(false);
+      DrawButton("Shift");
+      DrawButton("Reverse");
       delay(200);
     }
     if (activeBtn=="Vol"){
       if (settings.volume>0) settings.volume--;
-      setDraVolume(settings.volume);
-      drawButton("Vol");
-      drawButton("Mute");
+      SetDraVolume(settings.volume);
+      DrawButton("Vol");
+      DrawButton("Mute");
     }
     if (activeBtn=="SQL"){
       if (settings.squelsh>0) settings.squelsh--;
-      setFreq(0, 0, 0, false);
-      drawButton("SQL");
+      SetFreq(0, 0, 0, false);
+      DrawButton("SQL");
     }
     if (activeBtn=="Tone"){
       if (settings.ctcssTone>1) settings.ctcssTone--;
-      setFreq(0, 0, 0, false);
-      drawButton("Tone");
+      SetFreq(0, 0, 0, false);
+      DrawButton("Tone");
     }
     if (activeBtn=="Scan"){
       if (settings.scanType>0) settings.scanType--;
-      drawButton("Scan");
+      DrawButton("Scan");
     }  
     if (activeBtn=="RPT"){
       if (settings.repeater>1) settings.repeater--;
@@ -1247,159 +1253,179 @@ void handleButton(Button button, int x, int y){
       settings.txShift = repeaters[settings.repeater].shift;
       settings.ctcssTone = repeaters[settings.repeater].ctcssTone;
       settings.hasTone = repeaters[settings.repeater].hasTone;
-      setFreq(0, settings.rxChannel, settings.txShift + 10, false);
-      drawFrequency(false);
-      drawButton("RPT");
-      drawButton("Shift");
-      drawButton("Tone");
+      SetFreq(0, settings.rxChannel, settings.txShift + 10, false);
+      DrawFrequency(false);
+      DrawButton("RPT");
+      DrawButton("Shift");
+      DrawButton("Tone");
     }
     if (activeBtn=="Light"){
       if (settings.currentBrightness>5) settings.currentBrightness-=5;
       if (settings.currentBrightness<5) settings.currentBrightness=5;
-      drawButton("Light");
+      DrawButton("Light");
       ledcWrite(ledChannelforTFT, 256-(settings.currentBrightness*2.56));
     }
-    drawButton("Navigate");
+    DrawButton("Navigate");
   }
 
-  if (button.Name=="Shift" && !settings.isUHF){
+  if (button.name=="Shift" && !settings.isUHF){
     settings.txShift++;
     if (settings.txShift>SHIFT_POS) settings.txShift=SHIFT_NEG;
-    setFreq(0, 0, settings.txShift+10, false);
-    drawFrequency(false);
-    drawButton("Shift");
-    drawButton("Reverse");
+    SetFreq(0, 0, settings.txShift+10, false);
+    DrawFrequency(false);
+    DrawButton("Shift");
+    DrawButton("Reverse");
     delay(200);
   }
 
-  if (button.Name=="MOX" && !settings.isUHF){
+  if (button.name=="MOX" && !settings.isUHF){
     isMOX=!isMOX;
-    drawFrequency(false);
-    drawButton("MOX");
+    DrawFrequency(false);
+    DrawButton("MOX");
     delay(200);
   }
 
-  if (button.Name=="Beacon"){
-    sendBeacon(true, false);
+  if (button.name=="Beacon"){
+    SendBeacon(true, false);
   }
 
-  if (button.Name=="TXBeacon"){
-    sendBeaconViaRadio();
+  if (button.name=="TXBeacon"){
+    SendBeaconViaRadio();
     delay(200);
   }
 
-  if (button.Name=="Vol"){
-    activeBtn="Vol";
-    activeBtnStart = millis();
-    drawButtons();
+  if (button.name=="Vol"){
+    if (activeBtn=="Vol"){
+      keyboardNumber = settings.volume;
+      actualPage = BTN_NUMERIC;
+      DrawScreen();
+    } else {
+      activeBtn="Vol";
+      activeBtnStart = millis();
+      DrawButtons();
+    }
   }
 
-  if (button.Name=="SQL"){
-    activeBtn="SQL";
-    activeBtnStart = millis();
-    drawButtons();
+  if (button.name=="SQL"){
+    if (activeBtn=="SQL"){
+      keyboardNumber = settings.squelsh;
+      actualPage = BTN_NUMERIC;
+      DrawScreen();
+    } else {
+      activeBtn="SQL";
+      activeBtnStart = millis();
+      DrawButtons();
+    }
   }
 
-  if (button.Name=="Freq"){
-    settings.repeater=0;
-    settings.txShift = 0;  
-    settings.ctcssTone = 0;
-    settings.hasTone=TONETYPENONE;
-    activeBtn="Freq";
-    freqType="Freq";
-    drawFrequency(false);
-    drawButtons();
+  if (button.name=="Freq"){
+    if (activeBtn=="Freq"){
+      SFreq sFreq = GetFreq(settings.rxChannel);
+      if (!settings.isUHF) keyboardNumber = ((sFreq.fMHz-140)*10000)+sFreq.fKHz;
+      if (settings.isUHF) keyboardNumber = ((sFreq.fMHz-430)*10000)+sFreq.fKHz;
+      actualPage = BTN_NUMERIC;
+      DrawScreen();
+    } else {
+      settings.repeater=0;
+      settings.txShift = 0;  
+      settings.ctcssTone = 0;
+      settings.hasTone=TONETYPENONE;
+      activeBtn="Freq";
+      freqType="Freq";
+      DrawFrequency(false);
+      DrawButtons();
+    }
   }
 
-  if (button.Name=="Tone" && !settings.isUHF){
+  if (button.name=="Tone" && !settings.isUHF){
     if (activeBtn=="Tone") settings.hasTone++;
     if (settings.hasTone>3) settings.hasTone=0;
-    setFreq(0, 0, 0, false);
+    SetFreq(0, 0, 0, false);
     activeBtn="Tone";
     activeBtnStart = millis();
-    drawButtons();
+    DrawButtons();
   }
 
-  if (button.Name=="RPT" && !settings.isUHF){
+  if (button.name=="RPT" && !settings.isUHF){
     if (settings.repeater==0) settings.repeater=1;
     settings.rxChannel = repeaters[settings.repeater].channel;
     settings.txShift = repeaters[settings.repeater].shift;
     settings.ctcssTone = repeaters[settings.repeater].ctcssTone;
     settings.hasTone = repeaters[settings.repeater].hasTone;
-    setFreq(0, settings.rxChannel, settings.txShift+10, false);
-    drawFrequency(false);
+    SetFreq(0, settings.rxChannel, settings.txShift+10, false);
+    DrawFrequency(false);
     activeBtn="RPT";
     freqType="RPT";
-    drawButtons();
+    DrawButtons();
   }
 
-  if (button.Name=="Calibrate"){
-    touch_calibrate();
+  if (button.name=="Calibrate"){
+    TouchCalibrate();
     actualPage=1;
-    drawScreen();
+    DrawScreen();
   }
 
-  if (button.Name=="Reverse"){
+  if (button.name=="Reverse"){
     if (settings.rxChannel!=settings.txChannel){
       isReverse=!isReverse;
-      setFreq(0, 0, 0, false);
-      drawFrequency(false);
-      drawButton("Shift");
-      drawButton("Reverse");
+      SetFreq(0, 0, 0, false);
+      DrawFrequency(false);
+      DrawButton("Shift");
+      DrawButton("Reverse");
       delay(200);  
     } else isReverse=false;
   }
 
-  if (button.Name=="Light"){
+  if (button.name=="Light"){
     activeBtn="Light";
     activeBtnStart = millis();
-    drawButtons();
+    DrawButtons();
   }
 
-  if (button.Name=="Next") {
+  if (button.name=="Next") {
     actualPage = actualPage<<1;
     if (actualPage>lastPage) actualPage=1;
-    drawScreen();
+    DrawScreen();
   }
 
-  if (button.Name=="Prev") {
+  if (button.name=="Prev") {
     if (actualPage>1) actualPage = actualPage>>1;
-    drawScreen();
+    DrawScreen();
   }
 
-  if (button.Name=="Close") {
+  if (button.name=="Close") {
     actualPage=1;
-    drawScreen();
+    DrawScreen();
   }
 
-  if (button.Name=="APRS") {
+  if (button.name=="APRS") {
     settings.useAPRS = !settings.useAPRS;
-    drawScreen();
+    DrawScreen();
     delay(200);
   }
 
-  if (button.Name=="Power") {
+  if (button.name=="Power") {
     settings.draPower = !settings.draPower;
     digitalWrite(HIPOWERPIN,!settings.draPower);
-    drawButton("Power");
+    DrawButton("Power");
   }
 
-  if (button.Name=="Mute") {
+  if (button.name=="Mute") {
     if (settings.volume>0){
       isMuted = !isMuted;
       digitalWrite(MUTEPIN,isMuted);
-      drawButton("Mute");
+      DrawButton("Mute");
     }
   }
 
-  if (button.Name=="Off") {
+  if (button.name=="Off") {
     isOn = false;
     actualPage=1;
-    doTurnOff();
+    DoTurnOff();
     delay(500);
   }
 
-  if (button.Name=="Scan"){
+  if (button.name=="Scan"){
     if (scanMode!=SCAN_STOPPED){
       digitalWrite(MUTEPIN,isMuted);
       scanMode=SCAN_STOPPED;
@@ -1407,53 +1433,80 @@ void handleButton(Button button, int x, int y){
       if (freqType=="Freq") settings.hasTone=TONETYPENONE;
       digitalWrite(MUTEPIN,true);
       scanMode=SCAN_INPROCES;
-      Serial.print("FreqType:");
-      Serial.println(freqType);
     }
     activeBtn="Scan";
     activeBtnStart = millis();
-    drawButtons();
+    DrawButtons();
   }
 
-  if (button.Name=="SetBand"){
+  if (button.name=="SetBand"){
     settings.isUHF = !settings.isUHF;
-    drawButton("SetBand");
-    setFreq(0,0,0,false);
+    DrawButton("SetBand");
+    SetFreq(0,0,0,false);
     freqType="Freq";  
     settings.repeater = 0;
     settings.txShift = 0;  
     settings.ctcssTone = 0;
     settings.hasTone = TONETYPENONE;
-    drawScreen();
+    DrawScreen();
     delay(200);
   }
-  
-}
 
-void checkUsage(int i) {
-  SFreq txSFreq = getFreq(i);
-  sprintf(buf,"S+%01d.%04d",144+txSFreq.fFull,txSFreq.fPart*125);
-  Serial.println();
-  Serial.println(buf);
-  Serial2.println(buf);
-  while (Serial.available()) {
-    Serial.print(char(Serial.read()));
+  if (String(button.name).substring(0,3) =="A00") {
+    int i = String(button.name).substring(3).toInt();
+    if (activeBtn=="Freq"){
+      keyboardNumber = (keyboardNumber*10)+i;
+      if (!settings.isUHF && keyboardNumber>=60000) keyboardNumber=0;
+      if (settings.isUHF && keyboardNumber>=100000) keyboardNumber=0;
+    } 
+    if (activeBtn=="Vol" || activeBtn=="SQL"){
+      keyboardNumber = i;
+      if (keyboardNumber>8) keyboardNumber=0;
+    } 
+    // else if (activeBtn=="Tone") sprintf(buf,"%s", "Tone");
+    // else if (activeBtn=="Light") sprintf(buf,"%s", "Light");
+    DrawKeyboardNumber(false);
   }
+
+  if (button.name=="Enter") {
+    if (activeBtn=="Vol"){
+      settings.volume=keyboardNumber;
+      SetDraVolume(settings.volume);
+    }
+    if (activeBtn=="SQL"){
+      settings.squelsh=keyboardNumber;
+      SetFreq(0, 0, 0, false);
+    } 
+    if (activeBtn=="Freq"){
+      if (!settings.isUHF) settings.rxChannel = (keyboardNumber-40000)/125;
+      if (settings.isUHF) settings.rxChannel = (keyboardNumber/125)+22880;
+
+      SetFreq(0, settings.rxChannel, 0, false);
+    }
+    actualPage = 1;
+    DrawScreen();
+  }
+
+  if (button.name=="Clear") {
+    actualPage = 1;
+    DrawScreen();
+  }
+  
 }
 /***************************************************************************************
 **            Turn off
 ***************************************************************************************/
-void doTurnOff(){
+void DoTurnOff(){
   ledcWrite(ledChannelforTFT, 255);
   tft.fillScreen(TFT_BLACK);
-  setDraVolume(0);
+  SetDraVolume(0);
   digitalWrite(TRXONPIN, 1); // high TRX Off
 }
 
 /***************************************************************************************
 **            Calibrate touch
 ***************************************************************************************/
-void touch_calibrate(){
+void TouchCalibrate(){
   uint16_t calData[5];
   uint8_t calDataOK = 0;
 
@@ -1498,10 +1551,9 @@ void touch_calibrate(){
 /***************************************************************************************
 **            Set DRA
 ***************************************************************************************/
-
-void setFreq(int step, int channel, uint8_t txShift, bool isAPRS){
+void SetFreq(int step, int channel, uint8_t txShift, bool isAPRS){
   if (isAPRS){
-    setDra(settings.aprsChannel,settings.aprsChannel,0,0,settings.squelsh);
+    SetDra(settings.aprsChannel,settings.aprsChannel,0,0,settings.squelsh);
   } else {
     if (settings.isUHF && settings.rxChannel<settings.minUHFChannel) {
       settings.rxChannel=settings.minUHFChannel;
@@ -1545,22 +1597,22 @@ void setFreq(int step, int channel, uint8_t txShift, bool isAPRS){
 
       if (settings.rxChannel==settings.txChannel) isReverse=false;
     }
-    setDra(settings.rxChannel,settings.txChannel,(settings.hasTone==TONETYPERX || settings.hasTone==TONETYPERXTX)?settings.ctcssTone:TONETYPENONE,(settings.hasTone==TONETYPETX || settings.hasTone==TONETYPERXTX)?settings.ctcssTone:TONETYPENONE,settings.squelsh);
+    SetDra(settings.rxChannel,settings.txChannel,(settings.hasTone==TONETYPERX || settings.hasTone==TONETYPERXTX)?settings.ctcssTone:TONETYPENONE,(settings.hasTone==TONETYPETX || settings.hasTone==TONETYPERXTX)?settings.ctcssTone:TONETYPENONE,settings.squelsh);
   }
   delay(50);
 }
 
-void setDra(uint16_t rxFreq, uint16_t txFreq, byte rxTone, byte txTone, byte squelsh) {
-  SFreq rxSFreq = getFreq(isReverse?txFreq:rxFreq);
-  SFreq txSFreq = getFreq(isReverse?rxFreq:txFreq);
+void SetDra(uint16_t rxFreq, uint16_t txFreq, byte rxTone, byte txTone, byte squelsh) {
+  SFreq rxSFreq = GetFreq(isReverse?txFreq:rxFreq);
+  SFreq txSFreq = GetFreq(isReverse?rxFreq:txFreq);
 
-  sprintf(buf,"AT+DMOSETGROUP=0,%01d.%04d,%01d.%04d,%04d,%01d,%04d",144+txSFreq.fFull,txSFreq.fPart*125,144+rxSFreq.fFull,rxSFreq.fPart*125,txTone,squelsh,rxTone);
+  sprintf(buf,"AT+DMOSETGROUP=0,%01d.%04d,%01d.%04d,%04d,%01d,%04d",txSFreq.fMHz,txSFreq.fKHz,rxSFreq.fMHz,rxSFreq.fKHz,txTone,squelsh,rxTone);
   Serial.println();
   Serial.println(buf);
   Serial2.println(buf);
 }
 
-void setDraVolume(byte volume) {
+void SetDraVolume(byte volume) {
   isMuted=volume>0?false:true;
   digitalWrite(MUTEPIN,isMuted);
   sprintf(buf,"AT+DMOSETVOLUME=%01d",volume);
@@ -1569,7 +1621,7 @@ void setDraVolume(byte volume) {
   Serial2.println(buf);
 }
 
-void setDraSettings() {
+void SetDraSettings() {
   sprintf(buf,"AT+SETFILTER=%01d,%01d,%01d",settings.preEmphase,settings.highPass,settings.lowPass);
   Serial.println();
   Serial.print("Filter:");
@@ -1583,9 +1635,9 @@ void setDraSettings() {
   Serial2.println(buf);
 }
 /***************************************************************************************
-**            Print printGPSInfo
+**            Print PrintGPSInfo
 ***************************************************************************************/
-void printGPSInfo(){
+void PrintGPSInfo(){
   if (actualPage<lastPage){
     char sz[80];
     tft.setTextDatum(ML_DATUM);
@@ -1633,7 +1685,7 @@ void printGPSInfo(){
 /***************************************************************************************
 **            EEPROM Routines
 ***************************************************************************************/
-bool saveConfig() {
+bool SaveConfig() {
   for (unsigned int t = 0; t < sizeof(settings); t++)
     EEPROM.write(offsetEEPROM + t, *((char*)&settings + t));
   EEPROM.commit();
@@ -1641,18 +1693,17 @@ bool saveConfig() {
   return true;
 }
 
-bool loadConfig() {
+bool LoadConfig() {
   bool retVal = true;
   if (EEPROM.read(offsetEEPROM + 0) == settings.chkDigit){
     for (unsigned int t = 0; t < sizeof(settings); t++)
       *((char*)&settings + t) = EEPROM.read(offsetEEPROM + t);
   } else retVal = false;
-  Serial.print("Configuration:");
-  Serial.println(retVal?"Loaded":"Not loaded");
+  Serial.println("Configuration:" + retVal?"Loaded":"Not loaded");
   return retVal;
 }
 
-bool compareConfig() {
+bool CompareConfig() {
   bool retVal = true;
   for (unsigned int t = 0; t < sizeof(settings); t++)
     if (*((char*)&settings + t) != EEPROM.read(offsetEEPROM + t)) retVal = false;
@@ -1662,58 +1713,62 @@ bool compareConfig() {
 /***************************************************************************************
 **            APRS/IP Routines
 ***************************************************************************************/
-bool aprsGatewayConnect(){
+bool APRSGatewayConnect(){
   char c[20];
   sprintf(c,"%s", WiFi.status() == WL_CONNECTED?"WiFi Connected":"WiFi NOT Connected");
-  drawDebugInfo(c);
+  DrawDebugInfo(c);
   if (wifiAvailable && (WiFi.status() != WL_CONNECTED)){
     aprsGatewayConnected = false;
-    if (!connect2WiFi()) wifiAvailable = false;
-  } 
+    if (!Connect2WiFi()) wifiAvailable = false;
+  } else Serial.println("WiFi available and WiFiStatus connected");
   if (wifiAvailable) {
     if (!aprsGatewayConnected){
-      drawDebugInfo("Connecting to APRS server...");
+      DrawDebugInfo("Connecting to APRS server...");
       if (httpNet.connect(settings.aprsIP,settings.aprsPort)) {
-        if (readHTTPNet()) drawDebugInfo(httpBuf);
+        if (ReadHTTPNet()) DrawDebugInfo(httpBuf);
         sprintf(buf,"user %s-%d pass %s vers ",settings.call,settings.serverSsid,settings.aprsPassword,VERSION);
-        drawDebugInfo(buf);
+        DrawDebugInfo(buf);
         httpNet.println(buf);
-        if (readHTTPNet()) {
+        if (ReadHTTPNet()) {
           if (strstr(httpBuf," verified")){
-            drawDebugInfo(httpBuf);
-            drawDebugInfo("Connected to APRS.FI");
+            DrawDebugInfo(httpBuf);
+            DrawDebugInfo("Connected to APRS.FI");
             aprsGatewayConnected=true;
-          } else drawDebugInfo("Not connected to APRS.FI");
-        }
-      } else drawDebugInfo("Failed to connect to APRS.FI, server unavailable");
-    } else drawDebugInfo("Already connected to APRS.FI");
-  } else drawDebugInfo("Failed to connect to APRS.FI, WiFi not available");
+          } else DrawDebugInfo("Not connected to APRS.FI");
+        } else DrawDebugInfo("No response from ReadHTTPNet");
+      } else DrawDebugInfo("Failed to connect to APRS.FI, server unavailable");
+    } else DrawDebugInfo("Already connected to APRS.FI");
+  } else DrawDebugInfo("Failed to connect to APRS.FI, WiFi not available");
   return aprsGatewayConnected;
 }
 
-void aprsGatewayUpdate(){
-  if (aprsGatewayConnect()){
-    drawDebugInfo("Update IGate info on APRS");
+void APRSGatewayUpdate(){
+  DrawDebugInfo("aprsGatewayUpdate:");
+  sprintf(buf,"Date & Time :%02d/%02d/%02d %02d:%02d:%02d", gps.date.month(), gps.date.day(), gps.date.year(), gps.time.hour(), gps.time.minute(), gps.time.second());
+  DrawDebugInfo(buf);
+  if (APRSGatewayConnect()){
+    DrawDebugInfo("Update IGate info on APRS");
     sprintf(buf,"%s-%d",settings.call,settings.serverSsid);
-    drawDebugInfo(buf);
+    DrawDebugInfo(buf);
     httpNet.print(buf);
 
     sprintf(buf,">APRS,TCPIP*:@%02d%02d%02dz",gps.date.day(),gps.time.hour(),gps.time.minute());
-    drawDebugInfo(buf);
+    DrawDebugInfo(buf);
     httpNet.print(buf);
-    String sLat = deg2Nmea(settings.lat,true);
-    String sLon = deg2Nmea(settings.lon,false);         
+    String sLat = Deg2Nmea(settings.lat,true);
+    String sLon = Deg2Nmea(settings.lon,false);         
     sprintf(buf,"%s/%s",sLat,sLon);
-    drawDebugInfo(buf);
+    DrawDebugInfo(buf);
     httpNet.print(buf);
 
     sprintf(buf,"I/A=000012 %s",INFO);
-    drawDebugInfo(buf);
+    DrawDebugInfo(buf);
     httpNet.println(buf);
-  };
+    if (!ReadHTTPNet()) aprsGatewayConnected = false;;
+  } else DrawDebugInfo("APRS Gateway not connected");
 }
 
-bool readHTTPNet(){
+bool ReadHTTPNet(){
   httpBuf[0] = '\0';
   bool retVal = false;
   long timeOut = millis();
@@ -1730,7 +1785,7 @@ bool readHTTPNet(){
     // Serial.print("Read from HTTP:");
     // Serial.print(httpBuf);
   } else {
-      Serial.print("No data returned from HTTP");
+    Serial.print("No data returned from HTTP");
   }
   Serial.println();
   return retVal;
@@ -1739,87 +1794,88 @@ bool readHTTPNet(){
 /***************************************************************************************
 **            API Functions
 ***************************************************************************************/
-void notFound(AsyncWebServerRequest *request) {
+void NotFound(AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
 }
 
 /***************************************************************************************
 **            HTML Server functions
 ***************************************************************************************/
-void fillAPRSINFO(){
+void FillAPRSInfo(){
   buf[0] = '\0';
-  SFreq sFreq = getFreq(settings.aprsChannel);
-  sprintf(buf,"APRS:%01d.%03d, %s-%d, %s-%d",144+sFreq.fFull,sFreq.fPart*125,settings.call,settings.ssid,settings.dest,settings.destSsid);
+  SFreq sFreq = GetFreq(settings.aprsChannel);
+  sprintf(buf,"APRS:%01d.%03d, %s-%d, %s-%d",sFreq.fMHz,sFreq.fKHz,settings.call,settings.ssid,settings.dest,settings.destSsid);
 }
 
-void fillGPSINFO(){
+void FillGPSInfo(){
   buf[0] = '\0';
   sprintf(buf,"GPS :LAT:%s, LON:%s, Speed:%s KM, Age:%s     ",String(gps.location.lat(),4),String(gps.location.lng(),4), String(gps.speed.isValid()?gps.speed.kmph():0,0), gps.location.age()>5000?"Inv.":String(gps.location.age()));
 }
 
-void fillRXFREQ(){
+void FillRXFREQ(){
     buf[0] = '\0';
     SFreq sFreq;
-    if (isPTT^isReverse) sFreq = getFreq(settings.txChannel); else sFreq = getFreq(settings.rxChannel);
-    sprintf(buf,"<h1 style=\"text-align:center;color:%s\">%S%01d.%04d</h1>",isPTT?"red":squelshClosed?"yellow":"green",isPTT?"TX ":squelshClosed?"   ":"RX ",144+sFreq.fFull,sFreq.fPart*125);
+    if (isPTT^isReverse) sFreq = GetFreq(settings.txChannel); else sFreq = GetFreq(settings.rxChannel);
+    sprintf(buf,"<h1 style=\"text-align:center;color:%s\">%S%01d.%04d</h1>",isPTT?"red":squelshClosed?"yellow":"green",isPTT?"TX ":squelshClosed?"   ":"RX ",sFreq.fMHz,sFreq.fKHz);
 }
 
-void fillTXFREQ(){
+void FillTXFREQ(){
     buf[0] = '\0';
     if (settings.rxChannel!=settings.txChannel){
       SFreq sFreq;
-      if (isPTT^isReverse) sFreq = getFreq(settings.rxChannel); else sFreq = getFreq(settings.txChannel);
-      sprintf(buf,"%01d.%04d",144+sFreq.fFull,sFreq.fPart*125);
+      if (isPTT^isReverse) sFreq = GetFreq(settings.rxChannel); else sFreq = GetFreq(settings.txChannel);
+      sprintf(buf,"%01d.%04d",sFreq.fMHz,sFreq.fKHz);
     }
 }
 
-void fillREPEATERINFO(){
+void FillREPEATERInfo(){
   buf[0] = '\0';
-  sprintf(buf,"%s %s",repeaters[settings.repeater].Name,repeaters[settings.repeater].City);
+  sprintf(buf,"%s %s",repeaters[settings.repeater].name,repeaters[settings.repeater].city);
 }
 
-void refreshWebPage(){
+void RefreshWebPage(){
   if (wifiAvailable || wifiAPMode){
     events.send("ping",NULL,millis());
-    fillAPRSINFO();
+    FillAPRSInfo();
     events.send(buf,"APRSINFO",millis());
-    fillGPSINFO();
+    FillGPSInfo();
     events.send(buf,"GPSINFO",millis());
-    fillREPEATERINFO();
+    FillREPEATERInfo();
     events.send(buf,"REPEATERINFO",millis());
-    fillRXFREQ();
+    FillRXFREQ();
     events.send(buf,"RXFREQ",millis());    
-    fillTXFREQ();
+    FillTXFREQ();
     events.send(String(buf).c_str(),"TXFREQ",millis()); 
   }
   webRefresh = millis();
 }
 
-void clearButtons(){
+void ClearButtons(){
   buf[0] = '\0';
   sprintf(buf,"<div class=\"content\"><div class=\"cards\">%BUTTONS0%</div></div>");
   events.send(String(buf).c_str(),"BUTTONSERIE",millis()); 
 }
 
-String processor(const String& var){
+String Processor(const String& var){
+  //Serial.print("Process: "); Serial.println(var);
   if(var == "APRSINFO"){
-    fillAPRSINFO();
+    FillAPRSInfo();
     return buf;
   }
   if(var == "GPSINFO"){
-    fillGPSINFO();
+    FillGPSInfo();
     return buf;
   }
   if(var == "RXFREQ"){
-    fillRXFREQ();
+    FillRXFREQ();
     return buf;
   }
   if(var == "TXFREQ"){
-    fillTXFREQ();
+    FillTXFREQ();
     return buf;
   }
   if(var == "REPEATERINFO"){
-    fillREPEATERINFO();
+    FillREPEATERInfo();
     return buf;
   }
 
@@ -1827,8 +1883,8 @@ String processor(const String& var){
   if (var=="wifiPass") return settings.wifiPass;
   if (var=="aprsChannel") return String(settings.aprsChannel);
   if (var=="aprsFreq"){
-    SFreq sFreq = getFreq(settings.aprsChannel);
-    sprintf(buf,"%01d.%04d",144+sFreq.fFull,sFreq.fPart*125);
+    SFreq sFreq = GetFreq(settings.aprsChannel);
+    sprintf(buf,"%01d.%04d",sFreq.fMHz,sFreq.fKHz);
     return buf;
   }
   if (var=="aprsIP") return String(settings.aprsIP);
@@ -1862,19 +1918,19 @@ String processor(const String& var){
   if (var=="lon") return String(settings.lon,6);   
   if (var=="maxChannel") return String(settings.maxChannel);
   if (var=="maxFreq"){
-    SFreq sFreq = getFreq(settings.maxChannel);
-    sprintf(buf,"%01d.%04d",144+sFreq.fFull,sFreq.fPart*125);
+    SFreq sFreq = GetFreq(settings.maxChannel);
+    sprintf(buf,"%01d.%04d",sFreq.fMHz,sFreq.fKHz);
     return buf;
   }
   if (var=="isDebug") return settings.isDebug?"checked":"";
 
-  if(var >= "BUTTONS"){
+  if(var >= "BUTTONS" && var <= "BUTTONS99"){
     buf[0] = '\0';
     int i = var.substring(7).toInt();
     if (i+1<(sizeof(buttons)/sizeof(buttons[0]))) {
-      Button button = findButtonInfo(buttons[i]);
-      if ((button.pageNo<lastPage || button.pageNo==BTN_ARROW) && button.Name!="MOX"){ 
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>",button.Name,String(button.Name) == activeBtn?"white":"lightblue",button.Name,button.Caption, button.btnColor==TFT_RED?"red":button.btnColor==TFT_GREEN?"green":"blue",button.Name,button.Waarde);
+      Button button = FindButtonInfo(buttons[i]);
+      if ((button.pageNo<lastPage || button.pageNo==BTN_ARROW) && button.name!="MOX"){ 
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>",button.name,String(button.name) == activeBtn?"white":"lightblue",button.name,button.caption, button.btnColor==TFT_RED?"red":button.btnColor==TFT_GREEN?"green":"blue",button.name,button.waarde);
       }
       char buf2[10];
       sprintf(buf2,"%%BUTTONS%d%%",i+1);
@@ -1883,10 +1939,25 @@ String processor(const String& var){
     return buf;
   }
 
+  if(var >= "NUMMERS0" && var <= "NUMMERS99"){
+    buf[0] = '\0';
+    int i = var.substring(7).toInt();
+    if (i+1<(sizeof(buttons)/sizeof(buttons[0]))) {
+      Button button = FindButtonInfo(buttons[i]);
+      if (button.pageNo==BTN_NUMERIC){ 
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>",button.name,"lightgreen",button.name,button.caption, "blue",button.name,button.waarde);
+      }
+      char buf2[10];
+      sprintf(buf2,"%%NUMMERS%d%%",i+1);
+      strcat(buf,buf2);
+    }
+    return buf;
+  }
+
   return var;
 }
 
-void saveSettings(AsyncWebServerRequest *request){
+void SaveSettings(AsyncWebServerRequest *request){
   if (request->hasParam("wifiSSID")) request->getParam("wifiSSID")->value().toCharArray(settings.wifiSSID,25);
   if (request->hasParam("wifiPass")) request->getParam("wifiPass")->value().toCharArray(settings.wifiPass,25);
   if (request->hasParam("aprsChannel")) settings.aprsChannel = request->getParam("aprsChannel")->value().toInt();
@@ -1897,7 +1968,7 @@ void saveSettings(AsyncWebServerRequest *request){
   if (request->hasParam("aprsGatewayRefreshTime")) settings.aprsGatewayRefreshTime = request->getParam("aprsGatewayRefreshTime")->value().toInt();
   if (request->hasParam("call")) request->getParam("call")->value().toCharArray(settings.call,8); 
   if (request->hasParam("ssid")) settings.ssid = request->getParam("ssid")->value().toInt();
-  //if (request->hasParam("symbool")) Serial.println(request->getParam("symbol")->value());  
+  //if (request->hasParam("symbool")) DrawDebugInfo(request->getParam("symbol")->value());  
   if (request->hasParam("dest")) request->getParam("dest")->value().toCharArray(settings.dest,8); 
   if (request->hasParam("destSsid")) settings.destSsid = request->getParam("destSsid")->value().toInt();
   if (request->hasParam("path1")) request->getParam("path1")->value().toCharArray(settings.path1,8); 

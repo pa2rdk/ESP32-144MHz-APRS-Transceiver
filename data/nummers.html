@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>APRS Radio Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <meta http-equiv="refresh" content="1">  -->
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div class="topnav">
+    <h1>APRS Radio Server</h1>
+  </div>
+  <hr>
+    <div class="freqinfo">
+      <h1><span id="RXFREQ"><input type="text" placeholder="Type " id="inputId" value="%RXFREQ%"></span></h1>
+    </div>
+  <hr>  
+  <hr>
+  <div class="divinfo">
+    <form action="/numbers" method="get">
+
+    <div class="content">
+        <div class="cards">
+            %NUMMERS0%
+        </div>
+    </div>
+
+    </form><br>
+  </div>
+  <hr>
+  <div class="topnav" style="background-color: lightblue; ">
+  <table width="100%">
+      <tbody>
+      <tr>
+          <td style="text-align:left">
+          <h4>Copyright (c) Robert de Kok, PA2RDK</h4>
+          </td>
+          <td style="text-align:right">
+            <a href="/"><button>Main</button></a>
+          </td>
+      </tr>
+      </tbody>
+  </table>
+  </div>
+
+  <script>
+  if(typeof window.history.pushState == 'function') {
+    if (window.location.href.lastIndexOf('/command')>10 || window.location.href.lastIndexOf('/reboot')>10){
+      console.log(window.location.href);
+      window.location.href =  window.location.href.substring(0,window.location.href.lastIndexOf('/'))
+    }
+  }
+
+  document.getElementById('BTNA000').onclick = function(e){
+    var i = document.getElementById('inputId').value;
+    alert(i);
+    var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/nummers';
+    //alert(s);
+    window.location.href = s;  
+    return false;
+  }
+  </script>
+  </script>
+
+  </body>
+  </html>

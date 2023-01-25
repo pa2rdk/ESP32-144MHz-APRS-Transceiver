@@ -237,20 +237,6 @@
         <table class="fwidth">
           <tr>
             <td class="hwidth" style="text-align:right;font-size: medium;">
-              Multiplier:
-            </td>
-            <td class="hwidth" style="text-align:left;font-size: medium;">
-              <input type="number" name="multiplier" value="%multiplier%" min="0" max="255">
-            </td>
-          </tr>
-        </table>
-      </div>
-      <br> 
-      
-      <div class="divinfo">
-        <table class="fwidth">
-          <tr>
-            <td class="hwidth" style="text-align:right;font-size: medium;">
               Power:
             </td>
             <td class="hwidth" style="text-align:left;font-size: medium;">
@@ -432,7 +418,7 @@
 
   <script>
     if(typeof window.history.pushState == 'function') {
-      if (window.location.href.lastIndexOf('/command')>10 || window.location.href.lastIndexOf('/reboot')>10){
+      if (window.location.href.lastIndexOf('/command')>10 || window.location.href.lastIndexOf('/reboot')>10 || window.location.href.lastIndexOf('/store')>10){
         console.log(window.location.href);
         window.location.href =  window.location.href.substring(0,window.location.href.lastIndexOf('/'))
       }
