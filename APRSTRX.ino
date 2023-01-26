@@ -386,6 +386,10 @@ void setup(){
 
     server.on("/command", HTTP_GET, [] (AsyncWebServerRequest *request) {
       if (request->hasParam("button")) commandButton = request->getParam("button")->value();
+      if (request->hasParam("setfreq")){
+        SetFreq(request->getParam("setfreq")->value().toFloat());
+        DrawFrequency(false);
+      }
       request->send(SPIFFS, "/index.html", String(), false, Processor);
     });
 
@@ -1551,6 +1555,13 @@ void TouchCalibrate(){
 /***************************************************************************************
 **            Set DRA
 ***************************************************************************************/
+void SetFreq(float freq){
+  freq = freq/10000;
+  int channel = ((freq-144)*1000)/12.5;
+  settings.isUHF = (channel>=settings.minUHFChannel && channel<=settings.maxUHFChannel); 
+  SetFreq(0, channel, 0, false);
+}
+
 void SetFreq(int step, int channel, uint8_t txShift, bool isAPRS){
   if (isAPRS){
     SetDra(settings.aprsChannel,settings.aprsChannel,0,0,settings.squelsh);
@@ -1828,6 +1839,13 @@ void FillTXFREQ(){
     }
 }
 
+void FillKEYBFREQ(){
+    buf[0] = '\0';
+    SFreq sFreq;
+    if (isPTT^isReverse) sFreq = GetFreq(settings.txChannel); else sFreq = GetFreq(settings.rxChannel);
+    sprintf(buf,"%01d.%04d",sFreq.fMHz,sFreq.fKHz);
+}
+
 void FillREPEATERInfo(){
   buf[0] = '\0';
   sprintf(buf,"%s %s",repeaters[settings.repeater].name,repeaters[settings.repeater].city);
@@ -1857,7 +1875,7 @@ void ClearButtons(){
 }
 
 String Processor(const String& var){
-  //Serial.print("Process: "); Serial.println(var);
+  Serial.print("Process: "); Serial.println(var);
   if(var == "APRSINFO"){
     FillAPRSInfo();
     return buf;
@@ -1872,6 +1890,10 @@ String Processor(const String& var){
   }
   if(var == "TXFREQ"){
     FillTXFREQ();
+    return buf;
+  }
+  if(var == "KEYBFREQ"){
+    FillKEYBFREQ();
     return buf;
   }
   if(var == "REPEATERINFO"){
@@ -1945,10 +1967,11 @@ String Processor(const String& var){
     if (i+1<(sizeof(buttons)/sizeof(buttons[0]))) {
       Button button = FindButtonInfo(buttons[i]);
       if (button.pageNo==BTN_NUMERIC){ 
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>",button.name,"lightgreen",button.name,button.caption, "blue",button.name,button.waarde);
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s\"><p>%s</p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>",button.name,"lightgreen",button.caption, "blue",button.name,button.waarde);
       }
       char buf2[10];
       sprintf(buf2,"%%NUMMERS%d%%",i+1);
+      //Serial.println(buf);
       strcat(buf,buf2);
     }
     return buf;

@@ -13,7 +13,7 @@
   </div>
   <hr>
     <div class="freqinfo">
-      <h1><span id="RXFREQ"><input type="text" placeholder="Type " id="inputId" value="%RXFREQ%"></span></h1>
+      <h1><span id="RXFREQ"><input class="freqdisp" readonly type="text" placeholder="Type " id="inputFreq" value="%KEYBFREQ%"></span></h1>
     </div>
   <hr>  
   <hr>
@@ -52,15 +52,77 @@
     }
   }
 
-  document.getElementById('BTNA000').onclick = function(e){
-    var i = document.getElementById('inputId').value;
-    alert(i);
-    var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/nummers';
-    //alert(s);
+  document.getElementById('BTNA000').onclick = function(e) {
+    handleNummer(0);
+    return false;
+  }
+
+  document.getElementById('BTNA001').onclick = function(e) {
+    handleNummer(1);
+    return false;
+  }
+
+  document.getElementById('BTNA002').onclick = function(e) {
+    handleNummer(2);
+    return false;
+  }
+
+  document.getElementById('BTNA003').onclick = function(e) {
+    handleNummer(3);
+    return false;
+  }
+
+  document.getElementById('BTNA004').onclick = function(e) {
+    handleNummer(4);
+    return false;
+  }
+
+  document.getElementById('BTNA005').onclick = function(e) {
+    handleNummer(5);
+    return false;
+  }
+
+  document.getElementById('BTNA006').onclick = function(e) {
+    handleNummer(6);
+    return false;
+  }
+
+  document.getElementById('BTNA007').onclick = function(e) {
+    handleNummer(7);
+    return false;
+  }
+
+  document.getElementById('BTNA008').onclick = function(e) {
+    handleNummer(8);
+    return false;
+  }
+
+  document.getElementById('BTNA009').onclick = function(e) {
+    handleNummer(9);
+    return false;
+  }
+
+  document.getElementById('BTNEnter').onclick = function(e) {
+    var i = document.getElementById('inputFreq').value;
+    i = (i*10000)
+    var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/command?setfreq=' + i;
+    window.location.href = s;
+    return false;
+  }
+
+  document.getElementById('BTNClear').onclick = function(e) {
+    var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/';
     window.location.href = s;  
     return false;
   }
-  </script>
+
+  function handleNummer(nummer){
+    var i = document.getElementById('inputFreq').value;
+    i = (i*100000) + nummer;
+    i = i/10000;
+    if (i>440 || (i>146 && i<430)) i = nummer/10000;
+    document.getElementById('inputFreq').value = parseFloat(i).toFixed(4);
+  }
   </script>
 
   </body>

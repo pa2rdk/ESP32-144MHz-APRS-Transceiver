@@ -18,6 +18,15 @@ body {
     width: 100%;
 }
 
+.freqdisp {
+    border: none;
+    background-color: black;
+    color: yellow;
+    font-size: xx-large;
+    border-bottom: 1px solid gray;
+    text-align: center;
+}
+
 .topnav { 
     overflow: hidden; 
     background-color: blue; 
