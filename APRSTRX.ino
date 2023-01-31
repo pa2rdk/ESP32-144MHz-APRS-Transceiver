@@ -266,6 +266,7 @@ uint16_t lastCourse       = 0;
 char httpBuf[120]         = "\0";
 char buf[300]             = "\0";
 int32_t keyboardNumber    = 0;
+bool dirtyScreen          = false;
 
 AX25Msg incomingPacket;
 uint8_t *packetData;
@@ -388,8 +389,18 @@ void setup(){
       if (request->hasParam("button")) commandButton = request->getParam("button")->value();
       if (request->hasParam("setfreq")){
         SetFreq(request->getParam("setfreq")->value().toFloat());
-        DrawFrequency(false);
+        dirtyScreen=true;
       }
+      if (request->hasParam("setrepeater")){
+        Serial.println(request->getParam("setrepeater")->value());
+        uint8_t i  = request->getParam("setrepeater")->value().toInt();
+        if (i>-1){
+          settings.repeater=i;
+          SetRepeater(i);
+          dirtyScreen=true;
+        }
+      }
+      delay(100);
       request->send(SPIFFS, "/index.html", String(), false, Processor);
     });
 
@@ -399,6 +410,10 @@ void setup(){
 
     server.on("/nummers", HTTP_GET, [] (AsyncWebServerRequest *request) {
       request->send(SPIFFS, "/nummers.html", String(), false, Processor);
+    });
+
+    server.on("/repeaters", HTTP_GET, [] (AsyncWebServerRequest *request) {
+      request->send(SPIFFS, "/repeaters.html", String(), false, Processor);
     });
 
     server.on("/reboot", HTTP_GET, [] (AsyncWebServerRequest *request) {
@@ -448,7 +463,7 @@ void loop(){
     if (commandButton=="ToLeft" || commandButton=="ToRight"){
       HandleButton(commandButton,-1,0);
     } else {
-      HandleButton(commandButton);
+      HandleButton(commandButton,false);
     }
     commandButton = "";
     ClearButtons();
@@ -613,6 +628,9 @@ void loop(){
     beforeDebugPage = 0;
     DrawScreen();
   }
+
+  if (dirtyScreen) DrawScreen(true);
+
 }
 
 void WaitForWakeUp(){
@@ -688,6 +706,11 @@ void SendBeacon(bool manual, bool afterTX){
 
 void SendBeaconViaRadio(){
   if (!isPTT){
+
+    buf[0] = '\0';
+    sprintf(buf,"Send APRS beacon via radio");
+    events.send(buf,"BEACONINFO",millis());
+
     DrawDebugInfo("Send beacon via radio..");
     int lastScanMode = scanMode; 
     scanMode = SCAN_STOPPED;
@@ -720,6 +743,10 @@ void SendBeaconViaRadio(){
 
 void SendBeaconViaWiFi(){
   if (APRSGatewayConnect()){
+    buf[0] = '\0';
+    sprintf(buf,"Send APRS beacon via WiFi");
+    events.send(buf,"BEACONINFO",millis());
+
     String sLat;
     String sLon;
     if (gps.location.age()>5000){
@@ -787,10 +814,15 @@ char* Deg2Nmea(float fdeg, boolean is_lat) {
 **            Draw screen
 ***************************************************************************************/
 void DrawScreen(){
+  DrawScreen(false);
+}
+
+void DrawScreen(bool drawAll){
   tft.fillScreen(TFT_BLACK);
-  if (actualPage<lastPage) DrawFrequency(false);
+  if (actualPage<lastPage || drawAll) DrawFrequency(false);
   if (actualPage==BTN_NUMERIC) DrawKeyboardNumber(false);
   DrawButtons();
+  dirtyScreen = false;
 }
 
 void ShowDebugScreen(char header[]){
@@ -859,7 +891,7 @@ void DrawFrequency(bool isAPRS){
     tft.setTextPadding(tft.textWidth(buf));
     if (isPTT) tft.setTextColor(TFT_RED, TFT_BLACK); else tft.setTextColor(squelshClosed?TFT_GOLD:TFT_GREEN, TFT_BLACK);
     tft.drawString(buf, 315,60,7);
-
+ 
     if (isPTT^isReverse) sFreq = GetFreq(rxChannel); else sFreq = GetFreq(txChannel);
     sprintf(buf,"%01d.%04d",sFreq.fMHz,sFreq.fKHz);
     tft.fillRect(100,86,165,8,TFT_BLACK);
@@ -869,6 +901,7 @@ void DrawFrequency(bool isAPRS){
     tft.drawString(repeaters[settings.repeater].city, 220,90,1);
     tft.setTextPadding(tft.textWidth(buf));
     tft.drawString(buf, 315,90,1);
+
     if (isPTT){
       tft.fillCircle(50,60,24,TFT_RED);
       tft.setTextDatum(MC_DATUM);
@@ -877,6 +910,7 @@ void DrawFrequency(bool isAPRS){
       tft.drawString("TX", 50,62,4);
     } else  tft.fillCircle(50,60,24,TFT_BLACK);
     DrawMeter(2, 100, 314, 30, isPTT?4:10, isPTT);
+    RefreshWebPage();
   }
 }
 
@@ -1152,16 +1186,28 @@ void DrawBox(int xPos, int yPos, int width, int height){
 **            Handle button
 ***************************************************************************************/
 void HandleButton(String buttonName){
+  HandleButton(buttonName, true);
+}
+
+void HandleButton(String buttonName, bool doDraw){
   Button button = FindButtonByName(buttonName);
-  HandleButton(button,0,0);
+  HandleButton(button,0,0, doDraw);
 }
 
 void HandleButton(String buttonName, int x, int y){
+  HandleButton(buttonName, x, y, true);
+}
+
+void HandleButton(String buttonName, int x, int y, bool doDraw){
   Button button = FindButtonByName(buttonName);
-  HandleButton(button,x,y);
+  HandleButton(button, x, y, doDraw);
 }
 
 void HandleButton(Button button, int x, int y){
+  HandleButton(button, x, y, true);
+}
+
+void HandleButton(Button button, int x, int y, bool doDraw){
   if (button.name=="ToRight"){
     activeBtnStart = millis();
     if (activeBtn=="Freq"){
@@ -1171,50 +1217,48 @@ void HandleButton(Button button, int x, int y){
       if (x==-1) val = 1;
       if (val==8 && settings.isUHF) val = 40;
       SetFreq(val, 0, 0, false);
-      DrawFrequency(false);
-      DrawButton("Shift");
-      DrawButton("Reverse");
+      if (doDraw) DrawFrequency(false);
+      if (doDraw) DrawButton("Shift");
+      if (doDraw) DrawButton("Reverse");
       delay(200);
     }
     if (activeBtn=="Vol"){
       if (settings.volume<8) settings.volume++;
       SetDraVolume(settings.volume);
-      DrawButton("Vol");
-      DrawButton("Mute");
+      if (doDraw) DrawButton("Vol");
+      if (doDraw) DrawButton("Mute");
     }
     if (activeBtn=="SQL"){
       if (settings.squelsh<8) settings.squelsh++;
       SetFreq(0, 0, 0, false);
-      DrawButton("SQL");
+      if (doDraw) DrawButton("SQL");
     }
     if (activeBtn=="Tone"){
       if (settings.ctcssTone<(sizeof(cTCSSCodes)/sizeof(cTCSSCodes[0]))-1) settings.ctcssTone++;
       SetFreq(0, 0, 0, false);
-      DrawButton("Tone");
+      if (doDraw) DrawButton("Tone");
     }
     if (activeBtn=="Scan"){
       if (settings.scanType<1) settings.scanType++;
-      DrawButton("Scan");
+      if (doDraw) DrawButton("Scan");
     }  
     if (activeBtn=="RPT"){
-      if (settings.repeater<(sizeof(repeaters)/sizeof(repeaters[0]))-1) settings.repeater++;
-      settings.rxChannel = repeaters[settings.repeater].channel;
-      settings.txShift = repeaters[settings.repeater].shift;
-      settings.ctcssTone = repeaters[settings.repeater].ctcssTone;
-      settings.hasTone = repeaters[settings.repeater].hasTone;
-      SetFreq(0, settings.rxChannel, settings.txShift + 10, false);
-      DrawFrequency(false);
-      DrawButton("RPT");
-      DrawButton("Shift");
-      DrawButton("Tone");
+      if (settings.repeater<(sizeof(repeaters)/sizeof(repeaters[0]))-1){
+        settings.repeater++;
+        SetRepeater(settings.repeater);
+        if (doDraw) DrawFrequency(false);
+        if (doDraw) DrawButton("RPT");
+        if (doDraw) DrawButton("Shift");
+        if (doDraw) DrawButton("Tone");
+      }
     }
     if (activeBtn=="Light"){
       if (settings.currentBrightness<100) settings.currentBrightness+=5;
       if (settings.currentBrightness>100) settings.currentBrightness=100;
-      DrawButton("Light");
+      if (doDraw) DrawButton("Light");
       ledcWrite(ledChannelforTFT, 256-(settings.currentBrightness*2.56));
     }
-    DrawButton("Navigate");
+    if (doDraw) DrawButton("Navigate");
   }
 
   if (button.name=="ToLeft"){
@@ -1226,66 +1270,64 @@ void HandleButton(Button button, int x, int y){
       if (x==-1) val = 1;
       if (val==8 && settings.isUHF) val = 40;
       SetFreq(val*-1, 0, 0, false);
-      DrawFrequency(false);
-      DrawButton("Shift");
-      DrawButton("Reverse");
+      if (doDraw) DrawFrequency(false);
+      if (doDraw) DrawButton("Shift");
+      if (doDraw) DrawButton("Reverse");
       delay(200);
     }
     if (activeBtn=="Vol"){
       if (settings.volume>0) settings.volume--;
       SetDraVolume(settings.volume);
-      DrawButton("Vol");
-      DrawButton("Mute");
+      if (doDraw) DrawButton("Vol");
+      if (doDraw) DrawButton("Mute");
     }
     if (activeBtn=="SQL"){
       if (settings.squelsh>0) settings.squelsh--;
       SetFreq(0, 0, 0, false);
-      DrawButton("SQL");
+      if (doDraw) DrawButton("SQL");
     }
     if (activeBtn=="Tone"){
       if (settings.ctcssTone>1) settings.ctcssTone--;
       SetFreq(0, 0, 0, false);
-      DrawButton("Tone");
+      if (doDraw) DrawButton("Tone");
     }
     if (activeBtn=="Scan"){
       if (settings.scanType>0) settings.scanType--;
-      DrawButton("Scan");
+      if (doDraw) DrawButton("Scan");
     }  
     if (activeBtn=="RPT"){
-      if (settings.repeater>1) settings.repeater--;
-      settings.rxChannel = repeaters[settings.repeater].channel;
-      settings.txShift = repeaters[settings.repeater].shift;
-      settings.ctcssTone = repeaters[settings.repeater].ctcssTone;
-      settings.hasTone = repeaters[settings.repeater].hasTone;
-      SetFreq(0, settings.rxChannel, settings.txShift + 10, false);
-      DrawFrequency(false);
-      DrawButton("RPT");
-      DrawButton("Shift");
-      DrawButton("Tone");
+      if (settings.repeater>1){
+        settings.repeater--;
+        SetRepeater(settings.repeater);
+        if (doDraw) DrawFrequency(false);
+        if (doDraw) DrawButton("RPT");
+        if (doDraw) DrawButton("Shift");
+        if (doDraw) DrawButton("Tone");
+      } 
     }
     if (activeBtn=="Light"){
       if (settings.currentBrightness>5) settings.currentBrightness-=5;
       if (settings.currentBrightness<5) settings.currentBrightness=5;
-      DrawButton("Light");
+      if (doDraw) DrawButton("Light");
       ledcWrite(ledChannelforTFT, 256-(settings.currentBrightness*2.56));
     }
-    DrawButton("Navigate");
+    if (doDraw) DrawButton("Navigate");
   }
 
   if (button.name=="Shift" && !settings.isUHF){
     settings.txShift++;
     if (settings.txShift>SHIFT_POS) settings.txShift=SHIFT_NEG;
     SetFreq(0, 0, settings.txShift+10, false);
-    DrawFrequency(false);
-    DrawButton("Shift");
-    DrawButton("Reverse");
+    if (doDraw) DrawFrequency(false);
+    if (doDraw) DrawButton("Shift");
+    if (doDraw) DrawButton("Reverse");
     delay(200);
   }
 
   if (button.name=="MOX" && !settings.isUHF){
     isMOX=!isMOX;
-    DrawFrequency(false);
-    DrawButton("MOX");
+    if (doDraw) DrawFrequency(false);
+    if (doDraw) DrawButton("MOX");
     delay(200);
   }
 
@@ -1302,11 +1344,11 @@ void HandleButton(Button button, int x, int y){
     if (activeBtn=="Vol"){
       keyboardNumber = settings.volume;
       actualPage = BTN_NUMERIC;
-      DrawScreen();
+      if (doDraw) DrawScreen();
     } else {
       activeBtn="Vol";
       activeBtnStart = millis();
-      DrawButtons();
+      if (doDraw) DrawButtons();
     }
   }
 
@@ -1314,11 +1356,11 @@ void HandleButton(Button button, int x, int y){
     if (activeBtn=="SQL"){
       keyboardNumber = settings.squelsh;
       actualPage = BTN_NUMERIC;
-      DrawScreen();
+      if (doDraw) DrawScreen();
     } else {
       activeBtn="SQL";
       activeBtnStart = millis();
-      DrawButtons();
+      if (doDraw) DrawButtons();
     }
   }
 
@@ -1328,7 +1370,7 @@ void HandleButton(Button button, int x, int y){
       if (!settings.isUHF) keyboardNumber = ((sFreq.fMHz-140)*10000)+sFreq.fKHz;
       if (settings.isUHF) keyboardNumber = ((sFreq.fMHz-430)*10000)+sFreq.fKHz;
       actualPage = BTN_NUMERIC;
-      DrawScreen();
+      if (doDraw) DrawScreen();
     } else {
       settings.repeater=0;
       settings.txShift = 0;  
@@ -1336,8 +1378,8 @@ void HandleButton(Button button, int x, int y){
       settings.hasTone=TONETYPENONE;
       activeBtn="Freq";
       freqType="Freq";
-      DrawFrequency(false);
-      DrawButtons();
+      if (doDraw) DrawFrequency(false);
+      if (doDraw) DrawButtons();
     }
   }
 
@@ -1347,7 +1389,7 @@ void HandleButton(Button button, int x, int y){
     SetFreq(0, 0, 0, false);
     activeBtn="Tone";
     activeBtnStart = millis();
-    DrawButtons();
+    if (doDraw) DrawButtons();
   }
 
   if (button.name=="RPT" && !settings.isUHF){
@@ -1357,25 +1399,25 @@ void HandleButton(Button button, int x, int y){
     settings.ctcssTone = repeaters[settings.repeater].ctcssTone;
     settings.hasTone = repeaters[settings.repeater].hasTone;
     SetFreq(0, settings.rxChannel, settings.txShift+10, false);
-    DrawFrequency(false);
+    if (doDraw) DrawFrequency(false);
     activeBtn="RPT";
     freqType="RPT";
-    DrawButtons();
+    if (doDraw) DrawButtons();
   }
 
   if (button.name=="Calibrate"){
     TouchCalibrate();
     actualPage=1;
-    DrawScreen();
+    if (doDraw) DrawScreen();
   }
 
   if (button.name=="Reverse"){
     if (settings.rxChannel!=settings.txChannel){
       isReverse=!isReverse;
       SetFreq(0, 0, 0, false);
-      DrawFrequency(false);
-      DrawButton("Shift");
-      DrawButton("Reverse");
+      if (doDraw) DrawFrequency(false);
+      if (doDraw) DrawButton("Shift");
+      if (doDraw) DrawButton("Reverse");
       delay(200);  
     } else isReverse=false;
   }
@@ -1383,42 +1425,42 @@ void HandleButton(Button button, int x, int y){
   if (button.name=="Light"){
     activeBtn="Light";
     activeBtnStart = millis();
-    DrawButtons();
+    if (doDraw) DrawButtons();
   }
 
   if (button.name=="Next") {
     actualPage = actualPage<<1;
     if (actualPage>lastPage) actualPage=1;
-    DrawScreen();
+    if (doDraw) DrawScreen();
   }
 
   if (button.name=="Prev") {
     if (actualPage>1) actualPage = actualPage>>1;
-    DrawScreen();
+    if (doDraw) DrawScreen();
   }
 
   if (button.name=="Close") {
     actualPage=1;
-    DrawScreen();
+    if (doDraw) DrawScreen();
   }
 
   if (button.name=="APRS") {
     settings.useAPRS = !settings.useAPRS;
-    DrawScreen();
+    if (doDraw) DrawScreen();
     delay(200);
   }
 
   if (button.name=="Power") {
     settings.draPower = !settings.draPower;
     digitalWrite(HIPOWERPIN,!settings.draPower);
-    DrawButton("Power");
+    if (doDraw) DrawButton("Power");
   }
 
   if (button.name=="Mute") {
     if (settings.volume>0){
       isMuted = !isMuted;
       digitalWrite(MUTEPIN,isMuted);
-      DrawButton("Mute");
+      if (doDraw) DrawButton("Mute");
     }
   }
 
@@ -1440,19 +1482,19 @@ void HandleButton(Button button, int x, int y){
     }
     activeBtn="Scan";
     activeBtnStart = millis();
-    DrawButtons();
+    if (doDraw) DrawButtons();
   }
 
   if (button.name=="SetBand"){
     settings.isUHF = !settings.isUHF;
-    DrawButton("SetBand");
+    if (doDraw) DrawButton("SetBand");
     SetFreq(0,0,0,false);
     freqType="Freq";  
     settings.repeater = 0;
     settings.txShift = 0;  
     settings.ctcssTone = 0;
     settings.hasTone = TONETYPENONE;
-    DrawScreen();
+    if (doDraw) DrawScreen();
     delay(200);
   }
 
@@ -1469,7 +1511,7 @@ void HandleButton(Button button, int x, int y){
     } 
     // else if (activeBtn=="Tone") sprintf(buf,"%s", "Tone");
     // else if (activeBtn=="Light") sprintf(buf,"%s", "Light");
-    DrawKeyboardNumber(false);
+    if (doDraw) DrawKeyboardNumber(false);
   }
 
   if (button.name=="Enter") {
@@ -1488,14 +1530,14 @@ void HandleButton(Button button, int x, int y){
       SetFreq(0, settings.rxChannel, 0, false);
     }
     actualPage = 1;
-    DrawScreen();
+    if (doDraw) DrawScreen();
   }
 
   if (button.name=="Clear") {
     actualPage = 1;
-    DrawScreen();
+    if (doDraw) DrawScreen();
   }
-  
+  if (!doDraw) dirtyScreen=true;
 }
 /***************************************************************************************
 **            Turn off
@@ -1555,6 +1597,14 @@ void TouchCalibrate(){
 /***************************************************************************************
 **            Set DRA
 ***************************************************************************************/
+void SetRepeater(int repeater){
+      settings.rxChannel = repeaters[repeater].channel;
+      settings.txShift = repeaters[repeater].shift;
+      settings.ctcssTone = repeaters[repeater].ctcssTone;
+      settings.hasTone = repeaters[repeater].hasTone;
+      SetFreq(0, settings.rxChannel, settings.txShift + 10, false);
+}
+
 void SetFreq(float freq){
   freq = freq/10000;
   int channel = ((freq-144)*1000)/12.5;
@@ -1860,6 +1910,8 @@ void RefreshWebPage(){
     events.send(buf,"GPSINFO",millis());
     FillREPEATERInfo();
     events.send(buf,"REPEATERINFO",millis());
+    buf[0] = '\0';
+    events.send(buf,"BEACONINFO",millis());
     FillRXFREQ();
     events.send(buf,"RXFREQ",millis());    
     FillTXFREQ();
@@ -1882,6 +1934,10 @@ String Processor(const String& var){
   }
   if(var == "GPSINFO"){
     FillGPSInfo();
+    return buf;
+  }
+  if(var == "BEACONINFO"){
+    buf[0] = '\0';
     return buf;
   }
   if(var == "RXFREQ"){
@@ -1945,6 +2001,18 @@ String Processor(const String& var){
     return buf;
   }
   if (var=="isDebug") return settings.isDebug?"checked":"";
+
+  if(var >= "REPEATERS" && var <= "REPEATERS99"){
+    buf[0] = '\0';
+    int i = var.substring(9).toInt();
+    if (i+1<(sizeof(repeaters)/sizeof(repeaters[0]))) {
+      sprintf(buf,"<option value=\"%d\">%s/%s</option>",i,repeaters[i].name,repeaters[i].city);
+      char buf2[10];
+      sprintf(buf2,"%%REPEATERS%d%%",i+1);
+      strcat(buf,buf2);
+    }
+    return buf;
+  }
 
   if(var >= "BUTTONS" && var <= "BUTTONS99"){
     buf[0] = '\0';

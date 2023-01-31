@@ -15,6 +15,7 @@
   <div class="divinfo">
     <h4 style="text-align:left;color:lightblue"><span id="APRSINFO">%APRSINFO%</span></h4>
     <h4 style="text-align:left;color:orange"><span id="GPSINFO">%GPSINFO%</span></h4>
+    <h4 style="text-align:left;color:red"><span id="BEACONINFO">%BEACONINFO%</span></h4>
   </div>
   <hr>
   <div class="freqinfo">
@@ -84,6 +85,11 @@
       document.getElementById("REPEATERINFO").innerHTML = e.data;
     }, false);
 
+    source.addEventListener('BEACONINFO', function(e) {
+      console.log("BEACONINFO", e.data);
+      document.getElementById("BEACONINFO").innerHTML = e.data;
+    }, false);
+
     source.addEventListener('TXFREQ', function(e) {
       console.log("TXFREQ", e.data);
       document.getElementById("TXFREQ").innerHTML = e.data;
@@ -98,10 +104,21 @@
   }
 
   document.getElementById('BTNFreq').onclick = function(e){
-    var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/nummers';
-    //alert(s);
-    window.location.href = s;  
-    return false;
+    myObj = document.getElementById("BTNFreq");
+    if (myObj.style.backgroundColor=="white"){
+      var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/nummers';
+      window.location.href = s;  
+      return false;
+    } else return true;
+  }
+
+  document.getElementById('BTNRPT').onclick = function(e){
+    myObj = document.getElementById("BTNRPT");
+    if (myObj.style.backgroundColor=="white"){
+      var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/repeaters';
+      window.location.href = s;  
+      return false;
+    } else return true;
   }
   </script>
   </body>
