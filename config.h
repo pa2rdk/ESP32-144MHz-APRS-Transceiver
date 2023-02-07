@@ -83,12 +83,14 @@ const CTCSSCode cTCSSCodes[] = {
 };
 
 Settings settings = {
-    '!',                //chkDigit
+    '%',                //chkDigit
     0,                  //isUHF
     64,                 //aprsChannel
     140,                //rxChannel
     92,                 //txChannel
     0,                  //repeater
+    0,                  //memorychannel
+    0,                  //freqType
     -1,                 //txShift (-1=-600,  = 0, 1=+600)
     1,                  //autoShift
     0,                  //low DRAPower
