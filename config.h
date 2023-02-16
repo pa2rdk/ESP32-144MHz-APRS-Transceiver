@@ -83,7 +83,7 @@ const CTCSSCode cTCSSCodes[] = {
 };
 
 Settings settings = {
-    '%',                //chkDigit
+    '#',                //chkDigit
     0,                  //isUHF
     64,                 //aprsChannel
     140,                //rxChannel
@@ -95,6 +95,7 @@ Settings settings = {
     1,                  //autoShift
     0,                  //low DRAPower
     3,                  //hasTone (0=none, 1=rx, 2=tx, 3=rxtx)
+    1,                  //disableRXTone
     8,                  //ctcssTone
     8,                  //volume
     1,                  //squelsh
@@ -135,6 +136,7 @@ Settings settings = {
     4.461667,           //longitude
     1,                  //useAPRS
     8,                  //mikeLevel
+    1,                  //repeatSetDRA
     0,                  //preEmphase
     0,                  //highPass
     0,                  //lowPass
