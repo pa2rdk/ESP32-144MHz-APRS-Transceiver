@@ -1,4 +1,4 @@
-// V0.9AB
+// V0.9AC
 // 
 // DRA818 Info  :http://www.dorji.com/docs/data/DRA818V.pdf
 // LibAPRS from :https://codeload.github.com/tomasbrincil/LibAPRS-esp32/zip/refs/heads/master
@@ -37,13 +37,15 @@
 #include <LibAPRS.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <esp_task_wdt.h>
 
 #define offsetEEPROM       32
 #define EEPROM_SIZE        2048
-#define AA_FONT_SMALL "fonts/NotoSansBold15"      // 15 point sans serif bold
-#define AA_FONT_LARGE "fonts/NotoSansBold36"      // 36 point sans serif bold
-#define VERSION       "PA2RDK_IGATE_TCP"
-#define INFO          "Arduino PARDK IGATE"
+#define AA_FONT_SMALL     "fonts/NotoSansBold15"      // 15 point sans serif bold
+#define AA_FONT_LARGE     "fonts/NotoSansBold36"      // 36 point sans serif bold
+#define VERSION           "PA2RDK_IGATE_TCP"
+#define INFO              "Arduino PARDK IGATE"
+#define WDT_TIMEOUT        10
 
 #define TFT_GREY 0x5AEB
 #define TFT_LIGTHYELLOW 0xFF10
@@ -461,6 +463,11 @@ void setup(){
     server.begin();
     Serial.println("HTTP server started");
   }
+
+
+  esp_task_wdt_init(WDT_TIMEOUT, true); //enable panic so ESP32 restarts
+  esp_task_wdt_add(NULL); //add current thread to WDT watch
+
   DrawScreen();
 }
 
@@ -468,6 +475,7 @@ bool Connect2WiFi(){
   startTime = millis();
   Serial.print("Connect to Multi WiFi");
   while (wifiMulti.run() != WL_CONNECTED && millis()-startTime<30000){
+    esp_task_wdt_reset();
     delay(1000);
     Serial.print(".");
   }
@@ -479,6 +487,7 @@ bool Connect2WiFi(){
 **                          Loop
 ***************************************************************************************/
 void loop(){
+  esp_task_wdt_reset();
   delay(10);
 
   if (commandButton>""){
@@ -650,8 +659,38 @@ void loop(){
     DrawScreen();
   }
 
+  // processPacket();
   if (dirtyScreen) DrawScreen(true);
 
+}
+
+void processPacket() {
+  if (gotPacket) {
+    gotPacket = false;
+    
+    Serial.print(F("Received APRS packet. SRC: "));
+    Serial.print(incomingPacket.src.call);
+    Serial.print(F("-"));
+    Serial.print(incomingPacket.src.ssid);
+    Serial.print(F(". DST: "));
+    Serial.print(incomingPacket.dst.call);
+    Serial.print(F("-"));
+    Serial.print(incomingPacket.dst.ssid);
+    Serial.print(F(". Data: "));
+
+    for (int i = 0; i < incomingPacket.len; i++) {
+      Serial.write(incomingPacket.info[i]);
+    }
+    Serial.println("");
+
+    // Remeber to free memory for our buffer!
+    free(packetData);
+
+    // You can print out the amount of free
+    // RAM to check you don't have any memory
+    // leaks
+    // Serial.print(F("Free RAM: ")); Serial.println(freeMemory());
+  }
 }
 
 void WaitForWakeUp(){
