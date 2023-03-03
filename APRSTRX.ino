@@ -1896,8 +1896,6 @@ void PrintGPSInfo(){
       tft.drawString("WiFi:",2,105,2);
       tft.setTextColor(TFT_GREEN,TFT_BLACK);
       tft.drawString("SSID        :" + String(WiFi.SSID()),2,120,1);
-      sprintf(sz,"IP Address  :%s", WiFi.localIP());
-
       sprintf(sz,"IP Address  :%d.%d.%d.%d", WiFi.localIP()[0],WiFi.localIP()[1],WiFi.localIP()[2],WiFi.localIP()[3]);
       tft.drawString(sz,2,128,1);
       tft.drawString("RSSI        :" + String(WiFi.RSSI()),2,136,1); 
