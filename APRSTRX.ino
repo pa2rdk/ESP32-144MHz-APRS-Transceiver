@@ -339,8 +339,12 @@ void setup(){
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
 
   // add Wi-Fi networks from All_Settings.h
-  for (int i = 0; i < sizeof(wifiNetworks)/sizeof(wifiNetworks[0]); i++ )
-      wifiMulti.addAP(wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
+  for (int i = 0; i < sizeof(wifiNetworks)/sizeof(wifiNetworks[0]); i++ ){
+    wifiMulti.addAP(wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
+    Serial.printf("Wifi:%s, Pass:%s.",wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
+    Serial.println();
+  }
+      
 
   DrawButton(80,80,160,30,"Connecting to WiFi","",TFT_RED,TFT_WHITE,"");
 
@@ -358,13 +362,15 @@ void setup(){
       memories[x] = myMemory;
     }
     SaveMemories();
-
   }
+
   LoadConfig();
   LoadMemories();
 
   // show connected SSID
   wifiMulti.addAP(settings.wifiSSID,settings.wifiPass);
+  Serial.printf("Wifi:%s, Pass:%s.",settings.wifiSSID,settings.wifiPass);
+  Serial.println();
   if (Connect2WiFi()){
     wifiAvailable=true;
     DrawButton(80,80,160,30,"Connected to WiFi",WiFi.SSID(),TFT_RED,TFT_WHITE,"");
@@ -696,6 +702,7 @@ void processPacket() {
 void WaitForWakeUp(){
   delay(10);
   while (!isOn){
+    esp_task_wdt_reset();
     uint16_t x = 0, y = 0;
     bool pressed = tft.getTouch(&x, &y);
     if (pressed) ESP.restart();
@@ -758,15 +765,16 @@ void aprs_msg_callback(struct AX25Msg *msg) {
 ***************************************************************************************/
 void SendBeacon(bool manual, bool afterTX){
   if (gps.location.age()<5000 || manual || settings.isDebug){
-    ShowDebugScreen("Send beacon");
+    if (settings.isDebug) ShowDebugScreen("Send beacon");
     if ((!wifiAvailable || !APRSGatewayConnect() || settings.isDebug) && (squelshClosed || afterTX)) SendBeaconViaRadio(); // || settings.isDebug
     if (wifiAvailable && APRSGatewayConnect()) SendBeaconViaWiFi();
+    lastBeacon = millis();
   }
 }
 
 void SendBeaconViaRadio(){
   if (!isPTT){
-
+    Serial.printf("Mutestate is %s", digitalRead(MUTEPIN)?"True":"False");
     buf[0] = '\0';
     sprintf(buf,"Send APRS beacon via radio");
     events.send(buf,"BEACONINFO",millis());
@@ -806,7 +814,14 @@ void SendBeaconViaWiFi(){
     buf[0] = '\0';
     sprintf(buf,"Send APRS beacon via WiFi");
     events.send(buf,"BEACONINFO",millis());
-
+    if (!settings.isDebug){
+      PrintTXTLine();
+      tft.fillCircle(50,64,24,TFT_RED);
+      tft.setTextDatum(MC_DATUM);
+      tft.setTextPadding(tft.textWidth("AP"));
+      tft.setTextColor(TFT_BLACK, TFT_RED);
+      tft.drawString("AP", 50,66,4);
+    }
     String sLat;
     String sLon;
     if (gps.location.age()>5000){
@@ -820,6 +835,11 @@ void SendBeaconViaWiFi(){
     DrawDebugInfo(buf);
     httpNet.println(buf);
     if (ReadHTTPNet()) DrawDebugInfo(buf);
+    if (!settings.isDebug){
+      sprintf(buf,"                                                  ");
+      PrintTXTLine();
+      tft.fillCircle(50,64,24,TFT_BLACK);
+    }
   }
 }
 
@@ -926,6 +946,7 @@ void DrawDebugInfo(char debugInfo[]){
 ***************************************************************************************/
 void DrawFrequency(bool isAPRS){
   if (actualPage<lastPage){
+    tft.fillRect(0,0,320,135,TFT_BLACK);
     int freq, fMHz;
 
     tft.setTextDatum(ML_DATUM);
@@ -1882,6 +1903,12 @@ void PrintGPSInfo(){
       tft.drawString("RSSI        :" + String(WiFi.RSSI()),2,136,1); 
     }
   }
+}
+
+void PrintTXTLine(){
+  tft.setTextPadding(tft.textWidth(buf));
+  tft.setTextColor(TFT_RED, TFT_BLACK);
+  tft.drawString(buf,2,34,1);
 }
 
 /***************************************************************************************
