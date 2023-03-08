@@ -1,3 +1,4 @@
+// V0.9AD
 // V0.9AC
 // 
 // DRA818 Info  :http://www.dorji.com/docs/data/DRA818V.pdf
@@ -523,7 +524,7 @@ void loop(){
       SetMemory(settings.memoryChannel);
       DrawButton("MEM");
     }
-    DrawFrequency(false);
+    DrawFrequency(false,false);
     DrawButton("Shift");
     DrawButton("Reverse");
     DrawButton("Tone");
@@ -945,8 +946,12 @@ void DrawDebugInfo(char debugInfo[]){
 **            Draw frequencies
 ***************************************************************************************/
 void DrawFrequency(bool isAPRS){
+  DrawFrequency(isAPRS,true);
+}
+
+void DrawFrequency(bool isAPRS, bool doClear){
   if (actualPage<lastPage){
-    tft.fillRect(0,0,320,135,TFT_BLACK);
+    if (doClear) tft.fillRect(0,0,320,135,TFT_BLACK);
     int freq, fMHz;
 
     tft.setTextDatum(ML_DATUM);
