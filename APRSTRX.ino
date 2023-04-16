@@ -88,20 +88,18 @@
 #define TONETYPETX        2
 #define TONETYPERXTX      3
 
-typedef struct  // WiFi Access
-{
+typedef struct { // WiFi Access
   const char *SSID;
   const char *PASSWORD;
 } wlanSSID;
 
-typedef struct  // Frequency parts
-{
+typedef struct {  // Frequency parts
   int fMHz;
   int fKHz;
 } SFreq;
 
-typedef struct // Buttons
-{
+typedef struct {// Buttons
+
     const char *name;     // Buttonname
     const char *caption;  // Buttoncaption
     char waarde[12];  // Buttontext
@@ -240,8 +238,8 @@ typedef struct {
     char tone[8];
 } CTCSSCode;
 
-typedef struct // Repeaterlist
-{
+typedef struct {// Repeaterlist
+
     const char *name;     // Repeatername
     const char *city;  // Repeatercity
     int8_t shift;
@@ -619,7 +617,7 @@ void loop(){
   }
 
   if (millis()-activeBtnStart>10000){
-    if (activeBtn != FindButtonIDByName("Freq") && activeBtn != FindButtonIDByName("RPT") && activeBtn != FindButtonIDByName("MEM")){
+    if (activeBtn != FindButtonIDByName("Freq") && activeBtn != FindButtonIDByName("RPT") && activeBtn != FindButtonIDByName("MEM") && activeBtn != FindButtonIDByName("Save")){
       activeBtn=settings.freqType;
       DrawButtons();
     }
@@ -1624,15 +1622,21 @@ void HandleButton(Button button, int x, int y, bool doDraw){
   }
 
   if (button.name=="Save"){
-    Serial.println("SaveButton");
-    Memory myMemory = {settings.rxChannel, settings.txChannel, settings.repeater, settings.txShift, settings.hasTone, settings.ctcssTone};
-    memories[settings.memoryChannel] = myMemory;
-    SetMemory(settings.memoryChannel);
-    SaveMemories();
-    if (doDraw) DrawFrequency(false);
-    if (doDraw) DrawButton("MEM");
-    if (doDraw) DrawButton("Shift");
-    if (doDraw) DrawButton("Tone");
+
+    activeBtn=FindButtonIDByName("Save");
+    keyboardNumber = 0; //settings.memoryChannel;
+    actualPage = BTN_NUMERIC;
+    if (doDraw) DrawScreen();
+
+    // Serial.println("SaveButton");
+    // Memory myMemory = {settings.rxChannel, settings.txChannel, settings.repeater, settings.txShift, settings.hasTone, settings.ctcssTone};
+    // memories[settings.memoryChannel] = myMemory;
+    // SetMemory(settings.memoryChannel);
+    // SaveMemories();
+    // if (doDraw) DrawFrequency(false);
+    // if (doDraw) DrawButton("MEM");
+    // if (doDraw) DrawButton("Shift");
+    // if (doDraw) DrawButton("Tone");
 
   }
 
@@ -1660,6 +1664,10 @@ void HandleButton(Button button, int x, int y, bool doDraw){
       keyboardNumber = i;
       if (keyboardNumber>9) keyboardNumber=0;
     } 
+    if (activeBtn==FindButtonIDByName("Save")){
+      keyboardNumber = i;
+      if (keyboardNumber>9) keyboardNumber=0;
+    }
     if (doDraw) DrawKeyboardNumber(false);
   }
 
@@ -1680,6 +1688,18 @@ void HandleButton(Button button, int x, int y, bool doDraw){
     if (activeBtn==FindButtonIDByName("MEM")){
       settings.memoryChannel=keyboardNumber;
       SetMemory(settings.memoryChannel);
+    }
+    if (activeBtn==FindButtonIDByName("Save")){
+      Serial.println("SaveButton");
+      Memory myMemory = {settings.rxChannel, settings.txChannel, settings.repeater, settings.txShift, settings.hasTone, settings.ctcssTone};
+      settings.memoryChannel=keyboardNumber;
+      memories[settings.memoryChannel] = myMemory;
+      SetMemory(settings.memoryChannel);
+      SaveMemories();
+      if (doDraw) DrawFrequency(false);
+      if (doDraw) DrawButton("MEM");
+      if (doDraw) DrawButton("Shift");
+      if (doDraw) DrawButton("Tone");
     }
     actualPage = 1;
     if (doDraw) DrawScreen();
