@@ -164,12 +164,12 @@ const Button buttons[] = {
 };
 
 typedef struct {
-  uint16_t rxChannel;
-  uint16_t txChannel;
-  uint8_t repeater;
-  int8_t txShift;
-  byte hasTone;
-  byte ctcssTone;
+  uint16_t rxChannel;   // RX Freq channel (12.5KHz steps, 144.000MHz = 0, channel 128 is 145.600MHz)
+  uint16_t txChannel;   // TX Freq channel (12.5KHz steps, 144.000MHz = 0, channel 128 is 145.600MHz)
+  uint8_t repeater;     // Repeater number from the list of repeaters, overwrites RX and TX channel    
+  int8_t txShift;       // Shift + or -    
+  byte hasTone;         // 0=disabled, 1=only RX, 2=only TX, 3=RX and TX
+  byte ctcssTone;       // See list of CTCSS codes in config.h 
 } Memory;
 
 typedef struct {
@@ -202,7 +202,7 @@ typedef struct {
   byte serverSsid;
   uint16_t aprsGatewayRefreshTime;
   char comment[16];
-  byte symbool;  // = auto.
+  char symbool;  // = auto.
   char path1[8];
   byte path1Ssid;
   char path2[8];
@@ -238,14 +238,13 @@ typedef struct {
     char tone[8];
 } CTCSSCode;
 
-typedef struct {// Repeaterlist
-
-    const char *name;     // Repeatername
-    const char *city;  // Repeatercity
-    int8_t shift;
-    uint16_t channel;          
-    uint16_t ctcssTone; 
-    uint16_t hasTone;
+typedef struct {        // Repeaterlist
+    const char *name;   // Repeatername
+    const char *city;   // Repeatercity
+    int8_t shift;       // Shift + or -
+    uint16_t channel;   // RX Freq channel (12.5KHz steps, 144.000MHz = 0, channel 128 is 145.600MHz)           
+    uint16_t ctcssTone; // See list of CTCSS codes in config.h 
+    uint16_t hasTone;   // 0=disabled, 1=only RX, 2=only TX, 3=RX and TX
 } Repeater;
 
 // Settings & Variables
@@ -301,6 +300,8 @@ AsyncEventSource events("/events");
 Memory memories[10] = {};
 int memTeller = 0;
 
+#include "webpages.h";
+
 /***************************************************************************************
 **                          Setup
 ***************************************************************************************/
@@ -323,10 +324,10 @@ void setup(){
   ledcSetup(ledChannelforTFT, ledFreq, ledResol);
   ledcAttachPin(DISPLAYLEDPIN, ledChannelforTFT);
 
-  if(!SPIFFS.begin(true)){
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
+  // if(!SPIFFS.begin(true)){
+  //   Serial.println("An Error has occurred while mounting SPIFFS");
+  //   return;
+  // }
 
   Serial.begin(115200);
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
@@ -390,6 +391,7 @@ void setup(){
   APRS_init(ADC_REFERENCE, OPEN_SQUELCH);
   APRS_setCallsign(settings.call,settings.ssid);
   APRS_setDestination(settings.dest,settings.destSsid);
+  APRS_setSymbol(settings.symbool);
   APRS_setPath1(settings.path1,settings.path1Ssid);
   APRS_setPath2(settings.path2,settings.path2Ssid);
   APRS_setPower(settings.power);
@@ -407,11 +409,11 @@ void setup(){
 
   if (wifiAvailable || wifiAPMode){
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-      request->send(SPIFFS, "/index.html", String(), false, Processor);
+      request->send_P(200, "text/html", index_html, Processor);
     });
 
     server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
-      request->send(SPIFFS, "/style.css", "text/css");
+      request->send(200, "text/css", css_html);
     });
 
     server.on("/command", HTTP_GET, [] (AsyncWebServerRequest *request) {
@@ -430,19 +432,19 @@ void setup(){
         }
       }
       delay(100);
-      request->send(SPIFFS, "/index.html", String(), false, Processor);
+      request->send_P(200, "text/html", index_html, Processor);
     });
 
     server.on("/settings", HTTP_GET, [] (AsyncWebServerRequest *request) {
-      request->send(SPIFFS, "/settings.html", String(), false, Processor);
+      request->send_P(200, "text/html", settings_html, Processor);
     });
 
     server.on("/nummers", HTTP_GET, [] (AsyncWebServerRequest *request) {
-      request->send(SPIFFS, "/nummers.html", String(), false, Processor);
+      request->send_P(200, "text/html", nummers_html, Processor);
     });
 
     server.on("/repeaters", HTTP_GET, [] (AsyncWebServerRequest *request) {
-      request->send(SPIFFS, "/repeaters.html", String(), false, Processor);
+      request->send_P(200, "text/html", repeaters_html, Processor);
     });
 
     server.on("/reboot", HTTP_GET, [] (AsyncWebServerRequest *request) {
@@ -453,7 +455,7 @@ void setup(){
     server.on("/store", HTTP_GET, [] (AsyncWebServerRequest *request) {
       SaveSettings(request);
       SaveConfig();
-      request->send(SPIFFS, "/settings.html", String(), false, Processor);
+      request->send_P(200, "text/html", settings_html, Processor);
     });
 
     events.onConnect([](AsyncEventSourceClient *client){
@@ -830,7 +832,7 @@ void SendBeaconViaWiFi(){
       sLat = Deg2Nmea(gps.location.lat(),true);
       sLon = Deg2Nmea(gps.location.lng(),false);
     }
-    sprintf(buf,"%s-%d>%s:=%s/%s&PHG5000%s",settings.call,settings.ssid,settings.dest,sLat,sLon,settings.comment);
+    sprintf(buf,"%s-%d>%s:=%s/%s%sPHG5000%s",settings.call,settings.ssid,settings.dest,sLat,sLon,String(settings.symbool),settings.comment);
     DrawDebugInfo(buf);
     httpNet.println(buf);
     if (ReadHTTPNet()) DrawDebugInfo(buf);
@@ -954,7 +956,7 @@ void DrawFrequency(bool isAPRS, bool doClear){
 
     tft.setTextDatum(ML_DATUM);
     SFreq sFreq = GetFreq(settings.aprsChannel);
-    sprintf(buf,"APRS:%01d.%03d, %s-%d, %s-%d",sFreq.fMHz,sFreq.fKHz,settings.call,settings.ssid,settings.dest,settings.destSsid);
+    sprintf(buf,"APRS:%01d.%03d, %s-%d, %s-%d,%s",sFreq.fMHz,sFreq.fKHz,settings.call,settings.ssid,settings.dest,settings.destSsid,String(settings.symbool));
     tft.setTextPadding(tft.textWidth(buf));
     tft.setTextColor(TFT_CYAN, TFT_BLACK);
     if (settings.useAPRS) tft.drawString(buf,2,24,1);
