@@ -326,11 +326,6 @@ void setup(){
   ledcSetup(ledChannelforTFT, ledFreq, ledResol);
   ledcAttachPin(DISPLAYLEDPIN, ledChannelforTFT);
 
-  // if(!SPIFFS.begin(true)){
-  //   Serial.println("An Error has occurred while mounting SPIFFS");
-  //   return;
-  // }
-
   Serial.begin(115200);
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
 
