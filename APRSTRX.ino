@@ -1,4 +1,5 @@
 ////////////////////////////////////////////////////////////
+// V1.1 Gradient buttons
 // V1.0
 // V0.9AC
 // 
@@ -115,54 +116,54 @@ typedef struct {// Buttons
 } Button;
 
 const Button buttons[] = {
-    {"ToLeft","<<","",  BTN_ARROW,  2,208, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"ToRight",">>","", BTN_ARROW,242,208, 74,30, TFT_BLUE, TFT_BUTTONCOLOR}, 
+    {"ToLeft","<<","",  BTN_ARROW,  2,208, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"ToRight",">>","", BTN_ARROW,242,208, 74,30, TFT_BLACK, TFT_BUTTONCOLOR}, 
 
-    {"Vol","Vol","",            1,  2,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"SQL","SQL","",            1, 82,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Scan","Scan","",          1,162,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Off","Off","",            1,242,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"Vol","Vol","",            1,  2,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"SQL","SQL","",            1, 82,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Scan","Scan","",          1,162,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Off","Off","",            1,242,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
 
-    {"Freq","Freq","",          1,  2,172, 74,30, TFT_BLUE, TFT_WHITE},
-    {"RPT","RPT","",            1, 82,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"MEM","MEM","",            1,162,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"Freq","Freq","",          1,  2,172, 74,30, TFT_BLACK, TFT_WHITE},
+    {"RPT","RPT","",            1, 82,172, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"MEM","MEM","",            1,162,172, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
 
-    {"Shift","Shift","",        2,  2,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Mute","Mute","",          2, 82,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Tone","Tone","",          2,162,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Reverse","Reverse","",    2,242,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"Shift","Shift","",        2,  2,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Mute","Mute","",          2, 82,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Tone","Tone","",          2,162,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Reverse","Reverse","",    2,242,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
 
-    {"MOX","MOX","",            2, 82,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"APRS","APRS","",          2,162,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Beacon","Beacon","",      2, 82,208, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"TXBeacon","TX Beacon","", 2,162,208, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
+    {"MOX","MOX","",            2, 82,172, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"APRS","APRS","",          2,162,172, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Beacon","Beacon","",      2, 82,208, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"TXBeacon","TX Beacon","", 2,162,208, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
 
-    {"Power","Power","",        4,  2,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"SetBand","Band","",       4, 82,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Light","Light","",        4,162,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Calibrate","Calibrate","",4,242,136, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},   
-    {"Save","Save","",          4, 82,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Print","Print","",        4,162,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},    
+    {"Power","Power","",        4,  2,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"SetBand","Band","",       4, 82,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Light","Light","",        4,162,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Calibrate","Calibrate","",4,242,136, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},   
+    {"Save","Save","",          4, 82,172, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Print","Print","",        4,162,172, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},    
 
-    {"A001","1","",     BTN_NUMERIC, 42,100,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"A002","2","",     BTN_NUMERIC,122,100,74,30, TFT_BLUE, TFT_BUTTONCOLOR},    
-    {"A003","3","",     BTN_NUMERIC,202,100,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"A004","4","",     BTN_NUMERIC, 42,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},  
-    {"A005","5","",     BTN_NUMERIC,122,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"A006","6","",     BTN_NUMERIC,202,136,74,30, TFT_BLUE, TFT_BUTTONCOLOR},    
-    {"A007","7","",     BTN_NUMERIC, 42,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"A008","8","",     BTN_NUMERIC,124,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR}, 
-    {"A009","9","",     BTN_NUMERIC,202,172,74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Clear","Clear","",BTN_NUMERIC, 42,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR}, 
-    {"A000","0","",     BTN_NUMERIC,122,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR},       
-    {"Enter","Enter","",BTN_NUMERIC,202,208,74,30, TFT_BLUE, TFT_BUTTONCOLOR},  
+    {"A001","1","",     BTN_NUMERIC, 42,100,74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"A002","2","",     BTN_NUMERIC,122,100,74,30, TFT_BLACK, TFT_BUTTONCOLOR},    
+    {"A003","3","",     BTN_NUMERIC,202,100,74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"A004","4","",     BTN_NUMERIC, 42,136,74,30, TFT_BLACK, TFT_BUTTONCOLOR},  
+    {"A005","5","",     BTN_NUMERIC,122,136,74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"A006","6","",     BTN_NUMERIC,202,136,74,30, TFT_BLACK, TFT_BUTTONCOLOR},    
+    {"A007","7","",     BTN_NUMERIC, 42,172,74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"A008","8","",     BTN_NUMERIC,124,172,74,30, TFT_BLACK, TFT_BUTTONCOLOR}, 
+    {"A009","9","",     BTN_NUMERIC,202,172,74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Clear","Clear","",BTN_NUMERIC, 42,208,74,30, TFT_BLACK, TFT_BUTTONCOLOR}, 
+    {"A000","0","",     BTN_NUMERIC,122,208,74,30, TFT_BLACK, TFT_BUTTONCOLOR},       
+    {"Enter","Enter","",BTN_NUMERIC,202,208,74,30, TFT_BLACK, TFT_BUTTONCOLOR},  
 
-    {"Prev","Prev","",     BTN_PREV,  2,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Next","Next","",     BTN_NEXT,242,172, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"ToLeft","<<","",      BTN_NAV,  2,208,154,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"ToRight",">>","",     BTN_NAV,162,208,154,30, TFT_BLUE, TFT_BUTTONCOLOR},
-    {"Navigate","Freq","",  BTN_NAV,  2,208,314,30, TFT_BLUE, TFT_BUTTONCOLOR},   
-    {"Close","Close","",  BTN_CLOSE,122,208, 74,30, TFT_BLUE, TFT_BUTTONCOLOR},     
+    {"Prev","Prev","",     BTN_PREV,  2,172, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Next","Next","",     BTN_NEXT,242,172, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"ToLeft","<<","",      BTN_NAV,  2,208,154,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"ToRight",">>","",     BTN_NAV,162,208,154,30, TFT_BLACK, TFT_BUTTONCOLOR},
+    {"Navigate","Freq","",  BTN_NAV,  2,208,314,30, TFT_BLACK, TFT_BUTTONCOLOR},   
+    {"Close","Close","",  BTN_CLOSE,122,208, 74,30, TFT_BLACK, TFT_BUTTONCOLOR},     
 };
 
 typedef struct {
@@ -343,10 +344,10 @@ void setup(){
   }
       
 
-  DrawButton(80,80,160,30,"Connecting to WiFi","",TFT_RED,TFT_WHITE,"");
+  DrawButton(80,80,160,30,"Connecting to WiFi","",TFT_BLACK,TFT_WHITE,"");
 
   if (!EEPROM.begin(EEPROM_SIZE)){
-    DrawButton(80,120,160,30,"EEPROM Failed","",TFT_RED,TFT_WHITE,"");
+    DrawButton(80,120,160,30,"EEPROM Failed","",TFT_BLACK,TFT_WHITE,"");
     Serial.println("failed to initialise EEPROM"); 
     while(1);
   } 
@@ -370,7 +371,7 @@ void setup(){
   Serial.println();
   if (Connect2WiFi()){
     wifiAvailable=true;
-    DrawButton(80,80,160,30,"Connected to WiFi",WiFi.SSID(),TFT_RED,TFT_WHITE,"");
+    DrawButton(80,80,160,30,"Connected to WiFi",WiFi.SSID(),TFT_BLACK,TFT_WHITE,"");
     delay(1000);
     udp.begin(localPort);
     syncTime();
@@ -1069,7 +1070,7 @@ void DrawButtons(){
     if ((buttons[i].pageNo&showVal)>0){
       Button button = FindButtonInfo(buttons[i]);
       button.bckColor = TFT_BUTTONCOLOR;
-      if (String(button.name) == FindButtonNameByID(activeBtn)) button.bckColor = TFT_WHITE;
+      if (String(button.name) == FindButtonNameByID(activeBtn)) button.bckColor = TFT_GREEN;
       DrawButton(button.xPos,button.yPos,button.width,button.height,button.caption,button.waarde,button.btnColor,button.bckColor,button.name);
     }
   }
@@ -1085,7 +1086,7 @@ void DrawButton(String btnName, uint16_t btnColor){
     if (String(buttons[i].name)==btnName && ((buttons[i].pageNo&showVal)>0)){
       Button button = FindButtonInfo(buttons[i]);
       if (btnColor==0) btnColor = button.btnColor; 
-      if (String(button.name) == FindButtonNameByID(activeBtn)) button.bckColor = TFT_WHITE;
+      if (String(button.name) == FindButtonNameByID(activeBtn)) button.bckColor = TFT_GREEN;
       DrawButton(button.xPos,button.yPos,button.width,button.height,button.caption,button.waarde,btnColor,button.bckColor,button.name);
     }
   }
@@ -1095,28 +1096,26 @@ void DrawButton(int xPos, int yPos, int width, int height, String caption, Strin
   tft.setTextDatum(MC_DATUM);
   DrawBox(xPos, yPos, width, height);
 
-  tft.fillRoundRect(xPos + 2,yPos + 2, width-4, (height/2)+1, 3, bckColor);
+  tft.fillRectVGradient(xPos + 2,yPos + 2, width-4, (height/2)+1, TFT_BLACK, bckColor);
   tft.setTextPadding(tft.textWidth(caption));
-  tft.setTextColor(TFT_BLACK, bckColor);
+  tft.setTextColor(TFT_WHITE);
   tft.drawString(caption, xPos + (width/2), yPos + (height/2)-5, 2);
 
   if (Name=="Navigate"){
     tft.setTextDatum(ML_DATUM);
     tft.setTextPadding(tft.textWidth("     <<     <"));
-    tft.setTextColor(TFT_BLACK, bckColor);
+    tft.setTextColor(TFT_WHITE);
     tft.drawString("     <<     <", 5, yPos + (height/2)-5, 2);
     tft.setTextDatum(MR_DATUM);
     tft.setTextPadding(tft.textWidth(">     >>     "));
-    tft.setTextColor(TFT_BLACK, bckColor);
+    tft.setTextColor(TFT_WHITE);
     tft.drawString(">     >>     ", 309, yPos + (height/2)-5, 2);
   }
 
-  tft.fillRoundRect(xPos + 2,yPos + 2 + (height/2), width-4, (height/2)-4, 3,btnColor);
-  tft.fillRect(xPos + 2,yPos + 2 + (height/2), width-4, 2, TFT_DARKBLUE);
-
+  tft.fillRectVGradient(xPos + 2,yPos + 2 + (height/2), width-4, (height/2)-4, TFT_BLACK, btnColor);  
   if (waarde!=""){
     tft.setTextPadding(tft.textWidth(waarde));
-    tft.setTextColor(TFT_WHITE, btnColor);
+    tft.setTextColor(TFT_YELLOW);
     tft.drawString(waarde, xPos + (width/2), yPos + (height/2)+9, 1);
   }
 }
@@ -1152,7 +1151,7 @@ Button FindButtonInfo(Button button){
   char buttonBuf[10] = "\0";
   if (button.name=="Shift"){
     if (settings.txShift==SHIFT_NONE){
-      button.btnColor = TFT_BLUE;
+      button.btnColor = TFT_BLACK;
       strcpy(button.waarde,"None");
     } 
     if (settings.txShift==SHIFT_NEG){
@@ -1167,7 +1166,7 @@ Button FindButtonInfo(Button button){
 
   if (button.name=="MOX"){
     if (!isMOX){
-      button.btnColor = TFT_BLUE;
+      button.btnColor = TFT_BLACK;
       strcpy(button.waarde,"");
     } else {
       button.btnColor= TFT_RED;
@@ -1177,7 +1176,7 @@ Button FindButtonInfo(Button button){
 
   if (button.name=="Reverse"){
     if (!isReverse){
-      button.btnColor = TFT_BLUE;
+      button.btnColor = TFT_BLACK;
       strcpy(button.waarde,"");
     } else {
       button.btnColor= TFT_RED;
@@ -1226,7 +1225,7 @@ Button FindButtonInfo(Button button){
 
   if (button.name=="APRS"){
     if (!settings.useAPRS){
-      button.btnColor = TFT_BLUE;
+      button.btnColor = TFT_BLACK;
       strcpy(button.waarde,"Off");
     } else {
       button.btnColor= TFT_RED;
@@ -1247,7 +1246,7 @@ Button FindButtonInfo(Button button){
     if (settings.scanType==SCAN_TYPE_RESUME) sprintf(buttonBuf,"%s", "Resume");
     strcpy(button.waarde,buttonBuf);
     if (scanMode==SCAN_STOPPED){
-      button.btnColor = TFT_BLUE;
+      button.btnColor = TFT_BLACK;
     } else if (scanMode==SCAN_INPROCES) {
       button.btnColor= TFT_RED;
     } else {
@@ -1257,7 +1256,7 @@ Button FindButtonInfo(Button button){
 
   if (button.name=="SetBand"){
     if (!settings.isUHF){
-      button.btnColor = TFT_BLUE;
+      button.btnColor = TFT_BLACK;
       strcpy(button.waarde,"VHF");
     } else {
       button.btnColor = TFT_DARKBLUE;
