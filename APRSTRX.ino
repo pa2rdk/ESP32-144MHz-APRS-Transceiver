@@ -1,4 +1,5 @@
 ////////////////////////////////////////////////////////////
+// V1.3 Code review
 // V1.2 Better highlighted button
 // V1.1 Gradient buttons
 // V1.0
@@ -1077,28 +1078,15 @@ void DrawMeter(int xPos, int yPos, int width, int height, int value, bool isTX) 
 void DrawButtons() {
   for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
     int showVal = ShowControls();
-    if ((buttons[i].pageNo & showVal) > 0) {
-      Button button = FindButtonInfo(buttons[i]);
-      button.topColor = TFT_BUTTONTOPCOLOR;
-      //if (String(button.name) == FindButtonNameByID(activeBtn)) button.topColor = TFT_GREEN;
-      DrawButton(button.xPos, button.yPos, button.width, button.height, button.caption, button.waarde, button.bottomColor, button.topColor, button.name);
-    }
+    if ((buttons[i].pageNo & showVal) > 0) DrawButton(buttons[i].name);
   }
 }
 
 void DrawButton(String btnName) {
-  DrawButton(btnName, 0);
-}
-
-void DrawButton(String btnName, uint16_t bottomColor) {
   int showVal = ShowControls();
-  for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
-    if (String(buttons[i].name) == btnName && ((buttons[i].pageNo & showVal) > 0)) {
-      Button button = FindButtonInfo(buttons[i]);
-      if (bottomColor == 0) bottomColor = button.bottomColor;
-      //if (String(button.name) == FindButtonNameByID(activeBtn)) button.topColor = TFT_GREEN;
-      DrawButton(button.xPos, button.yPos, button.width, button.height, button.caption, button.waarde, bottomColor, button.topColor, button.name);
-    }
+  Button button = FindButtonByName(btnName);
+  if ((button.pageNo & showVal) > 0) {
+    DrawButton(button.xPos, button.yPos, button.width, button.height, button.caption, button.waarde, button.bottomColor, button.topColor, button.name);
   }
 }
 
