@@ -56,7 +56,7 @@
 #define TFT_LIGTHYELLOW 0xFF10
 #define TFT_DARKBLUE 0x016F
 #define TFT_SHADOW 0xE71C
-#define TFT_BUTTONCOLOR 0xB5FE
+#define TFT_BUTTONTOPCOLOR 0xB5FE
 
 #define BTN_NAV 32768
 #define BTN_NEXT 16384
@@ -103,7 +103,6 @@ typedef struct {  // Frequency parts
 } SFreq;
 
 typedef struct {  // Buttons
-
   const char *name;     // Buttonname
   const char *caption;  // Buttoncaption
   char waarde[12];      // Buttontext
@@ -112,59 +111,59 @@ typedef struct {  // Buttons
   uint16_t yPos;
   uint16_t width;
   uint16_t height;
-  uint16_t btnColor;
-  uint16_t bckColor;
+  uint16_t bottomColor;
+  uint16_t topColor;
 } Button;
 
 const Button buttons[] = {
-  { "ToLeft", "<<", "", BTN_ARROW, 2, 208, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "ToRight", ">>", "", BTN_ARROW, 242, 208, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
+  { "ToLeft", "<<", "", BTN_ARROW, 2, 208, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "ToRight", ">>", "", BTN_ARROW, 242, 208, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
 
-  { "Vol", "Vol", "", 1, 2, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "SQL", "SQL", "", 1, 82, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Scan", "Scan", "", 1, 162, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Off", "Off", "", 1, 242, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
+  { "Vol", "Vol", "", 1, 2, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "SQL", "SQL", "", 1, 82, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Scan", "Scan", "", 1, 162, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Off", "Off", "", 1, 242, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
 
   { "Freq", "Freq", "", 1, 2, 172, 74, 30, TFT_BLACK, TFT_WHITE },
-  { "RPT", "RPT", "", 1, 82, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "MEM", "MEM", "", 1, 162, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
+  { "RPT", "RPT", "", 1, 82, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "MEM", "MEM", "", 1, 162, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
 
-  { "Shift", "Shift", "", 2, 2, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Mute", "Mute", "", 2, 82, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Tone", "Tone", "", 2, 162, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Reverse", "Reverse", "", 2, 242, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
+  { "Shift", "Shift", "", 2, 2, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Mute", "Mute", "", 2, 82, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Tone", "Tone", "", 2, 162, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Reverse", "Reverse", "", 2, 242, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
 
-  { "MOX", "MOX", "", 2, 82, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "APRS", "APRS", "", 2, 162, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Beacon", "Beacon", "", 2, 82, 208, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "TXBeacon", "TX Beacon", "", 2, 162, 208, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
+  { "MOX", "MOX", "", 2, 82, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "APRS", "APRS", "", 2, 162, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Beacon", "Beacon", "", 2, 82, 208, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "TXBeacon", "TX Beacon", "", 2, 162, 208, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
 
-  { "Power", "Power", "", 4, 2, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "SetBand", "Band", "", 4, 82, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Light", "Light", "", 4, 162, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Calibrate", "Calibrate", "", 4, 242, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Save", "Save", "", 4, 82, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Print", "Print", "", 4, 162, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
+  { "Power", "Power", "", 4, 2, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "SetBand", "Band", "", 4, 82, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Light", "Light", "", 4, 162, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Calibrate", "Calibrate", "", 4, 242, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Save", "Save", "", 4, 82, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Print", "Print", "", 4, 162, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
 
-  { "A001", "1", "", BTN_NUMERIC, 42, 100, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "A002", "2", "", BTN_NUMERIC, 122, 100, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "A003", "3", "", BTN_NUMERIC, 202, 100, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "A004", "4", "", BTN_NUMERIC, 42, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "A005", "5", "", BTN_NUMERIC, 122, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "A006", "6", "", BTN_NUMERIC, 202, 136, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "A007", "7", "", BTN_NUMERIC, 42, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "A008", "8", "", BTN_NUMERIC, 124, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "A009", "9", "", BTN_NUMERIC, 202, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Clear", "Clear", "", BTN_NUMERIC, 42, 208, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "A000", "0", "", BTN_NUMERIC, 122, 208, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Enter", "Enter", "", BTN_NUMERIC, 202, 208, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
+  { "A001", "1", "", BTN_NUMERIC, 42, 100, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "A002", "2", "", BTN_NUMERIC, 122, 100, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "A003", "3", "", BTN_NUMERIC, 202, 100, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "A004", "4", "", BTN_NUMERIC, 42, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "A005", "5", "", BTN_NUMERIC, 122, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "A006", "6", "", BTN_NUMERIC, 202, 136, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "A007", "7", "", BTN_NUMERIC, 42, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "A008", "8", "", BTN_NUMERIC, 124, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "A009", "9", "", BTN_NUMERIC, 202, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Clear", "Clear", "", BTN_NUMERIC, 42, 208, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "A000", "0", "", BTN_NUMERIC, 122, 208, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Enter", "Enter", "", BTN_NUMERIC, 202, 208, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
 
-  { "Prev", "Prev", "", BTN_PREV, 2, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Next", "Next", "", BTN_NEXT, 242, 172, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "ToLeft", "<<", "", BTN_NAV, 2, 208, 154, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "ToRight", ">>", "", BTN_NAV, 162, 208, 154, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Navigate", "Freq", "", BTN_NAV, 2, 208, 314, 30, TFT_BLACK, TFT_BUTTONCOLOR },
-  { "Close", "Close", "", BTN_CLOSE, 122, 208, 74, 30, TFT_BLACK, TFT_BUTTONCOLOR },
+  { "Prev", "Prev", "", BTN_PREV, 2, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Next", "Next", "", BTN_NEXT, 242, 172, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "ToLeft", "<<", "", BTN_NAV, 2, 208, 154, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "ToRight", ">>", "", BTN_NAV, 162, 208, 154, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Navigate", "Freq", "", BTN_NAV, 2, 208, 314, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
+  { "Close", "Close", "", BTN_CLOSE, 122, 208, 74, 30, TFT_BLACK, TFT_BUTTONTOPCOLOR },
 };
 
 typedef struct {
@@ -1080,9 +1079,9 @@ void DrawButtons() {
     int showVal = ShowControls();
     if ((buttons[i].pageNo & showVal) > 0) {
       Button button = FindButtonInfo(buttons[i]);
-      button.bckColor = TFT_BUTTONCOLOR;
-      //if (String(button.name) == FindButtonNameByID(activeBtn)) button.bckColor = TFT_GREEN;
-      DrawButton(button.xPos, button.yPos, button.width, button.height, button.caption, button.waarde, button.btnColor, button.bckColor, button.name);
+      button.topColor = TFT_BUTTONTOPCOLOR;
+      //if (String(button.name) == FindButtonNameByID(activeBtn)) button.topColor = TFT_GREEN;
+      DrawButton(button.xPos, button.yPos, button.width, button.height, button.caption, button.waarde, button.bottomColor, button.topColor, button.name);
     }
   }
 }
@@ -1091,29 +1090,29 @@ void DrawButton(String btnName) {
   DrawButton(btnName, 0);
 }
 
-void DrawButton(String btnName, uint16_t btnColor) {
+void DrawButton(String btnName, uint16_t bottomColor) {
   int showVal = ShowControls();
   for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
     if (String(buttons[i].name) == btnName && ((buttons[i].pageNo & showVal) > 0)) {
       Button button = FindButtonInfo(buttons[i]);
-      if (btnColor == 0) btnColor = button.btnColor;
-      //if (String(button.name) == FindButtonNameByID(activeBtn)) button.bckColor = TFT_GREEN;
-      DrawButton(button.xPos, button.yPos, button.width, button.height, button.caption, button.waarde, btnColor, button.bckColor, button.name);
+      if (bottomColor == 0) bottomColor = button.bottomColor;
+      //if (String(button.name) == FindButtonNameByID(activeBtn)) button.topColor = TFT_GREEN;
+      DrawButton(button.xPos, button.yPos, button.width, button.height, button.caption, button.waarde, bottomColor, button.topColor, button.name);
     }
   }
 }
 
-void DrawButton(int xPos, int yPos, int width, int height, String caption, String waarde, uint16_t btnColor, uint16_t bckColor, String Name) {
+void DrawButton(int xPos, int yPos, int width, int height, String caption, String waarde, uint16_t bottomColor, uint16_t topColor, String Name) {
   tft.setTextDatum(MC_DATUM);
   DrawBox(xPos, yPos, width, height);
 
   uint16_t gradientStartColor = TFT_BLACK;
-  if (Name == FindButtonNameByID(activeBtn)) gradientStartColor = bckColor;
+  if (Name == FindButtonNameByID(activeBtn)) gradientStartColor = topColor;
 
-  tft.fillRectVGradient(xPos + 2, yPos + 2, width - 4, (height / 2) + 1, gradientStartColor, bckColor);
+  tft.fillRectVGradient(xPos + 2, yPos + 2, width - 4, (height / 2) + 1, gradientStartColor, topColor);
   tft.setTextPadding(tft.textWidth(caption));
   tft.setTextColor(TFT_WHITE);
-  if (gradientStartColor == bckColor) tft.setTextColor(TFT_BLACK);
+  if (gradientStartColor == topColor) tft.setTextColor(TFT_BLACK);
   tft.drawString(caption, xPos + (width / 2), yPos + (height / 2) - 5, 2);
 
   if (Name == "Navigate") {
@@ -1127,13 +1126,13 @@ void DrawButton(int xPos, int yPos, int width, int height, String caption, Strin
     tft.drawString(">     >>     ", 309, yPos + (height / 2) - 5, 2);
   }
 
-  // tft.fillRectVGradient(xPos + 2,yPos + 2 + (height/2), width-4, (height/2)-4, TFT_BLACK, btnColor);
-  tft.fillRoundRect(xPos + 2, yPos + 2 + (height / 2), width - 4, (height / 2) - 4, 3, btnColor);
+  // tft.fillRectVGradient(xPos + 2,yPos + 2 + (height/2), width-4, (height/2)-4, TFT_BLACK, bottomColor);
+  tft.fillRoundRect(xPos + 2, yPos + 2 + (height / 2), width - 4, (height / 2) - 4, 3, bottomColor);
   if (waarde != "") {
     tft.setTextPadding(tft.textWidth(waarde));
     tft.setTextColor(TFT_YELLOW);
-    if (btnColor != TFT_BLACK) tft.setTextColor(TFT_BLACK);
-    if (btnColor == TFT_RED) tft.setTextColor(TFT_WHITE);
+    if (bottomColor != TFT_BLACK) tft.setTextColor(TFT_BLACK);
+    if (bottomColor == TFT_RED) tft.setTextColor(TFT_WHITE);
     tft.drawString(waarde, xPos + (width / 2), yPos + (height / 2) + 9, 1);
   }
 }
@@ -1169,35 +1168,35 @@ Button FindButtonInfo(Button button) {
   char buttonBuf[10] = "\0";
   if (button.name == "Shift") {
     if (settings.txShift == SHIFT_NONE) {
-      button.btnColor = TFT_BLACK;
+      button.bottomColor = TFT_BLACK;
       strcpy(button.waarde, "None");
     }
     if (settings.txShift == SHIFT_NEG) {
-      button.btnColor = TFT_RED;
+      button.bottomColor = TFT_RED;
       strcpy(button.waarde, "-600");
     }
     if (settings.txShift == SHIFT_POS) {
-      button.btnColor = TFT_GREEN;
+      button.bottomColor = TFT_GREEN;
       strcpy(button.waarde, "600");
     }
   }
 
   if (button.name == "MOX") {
     if (!isMOX) {
-      button.btnColor = TFT_BLACK;
+      button.bottomColor = TFT_BLACK;
       strcpy(button.waarde, "");
     } else {
-      button.btnColor = TFT_RED;
+      button.bottomColor = TFT_RED;
       strcpy(button.waarde, "PTT");
     }
   }
 
   if (button.name == "Reverse") {
     if (!isReverse) {
-      button.btnColor = TFT_BLACK;
+      button.bottomColor = TFT_BLACK;
       strcpy(button.waarde, "");
     } else {
-      button.btnColor = TFT_RED;
+      button.bottomColor = TFT_RED;
       strcpy(button.waarde, "On");
     }
   }
@@ -1243,10 +1242,10 @@ Button FindButtonInfo(Button button) {
 
   if (button.name == "APRS") {
     if (!settings.useAPRS) {
-      button.btnColor = TFT_BLACK;
+      button.bottomColor = TFT_BLACK;
       strcpy(button.waarde, "Off");
     } else {
-      button.btnColor = TFT_RED;
+      button.bottomColor = TFT_RED;
       strcpy(button.waarde, "On");
     }
   }
@@ -1264,20 +1263,20 @@ Button FindButtonInfo(Button button) {
     if (settings.scanType == SCAN_TYPE_RESUME) sprintf(buttonBuf, "%s", "Resume");
     strcpy(button.waarde, buttonBuf);
     if (scanMode == SCAN_STOPPED) {
-      button.btnColor = TFT_BLACK;
+      button.bottomColor = TFT_BLACK;
     } else if (scanMode == SCAN_INPROCES) {
-      button.btnColor = TFT_RED;
+      button.bottomColor = TFT_RED;
     } else {
-      button.btnColor = TFT_GREEN;
+      button.bottomColor = TFT_GREEN;
     }
   }
 
   if (button.name == "SetBand") {
     if (!settings.isUHF) {
-      button.btnColor = TFT_BLACK;
+      button.bottomColor = TFT_BLACK;
       strcpy(button.waarde, "VHF");
     } else {
-      button.btnColor = TFT_DARKBLUE;
+      button.bottomColor = TFT_DARKBLUE;
       strcpy(button.waarde, "UHF");
     }
   }
@@ -2254,7 +2253,7 @@ String Processor(const String &var) {
     if (i + 1 < (sizeof(buttons) / sizeof(buttons[0]))) {
       Button button = FindButtonInfo(buttons[i]);
       if ((button.pageNo < lastPage || button.pageNo == BTN_ARROW) && button.name != "MOX") {
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue", button.name, button.caption, button.btnColor == TFT_RED ? "red" : button.btnColor == TFT_GREEN ? "green"
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue", button.name, button.caption, button.bottomColor == TFT_RED ? "red" : button.bottomColor == TFT_GREEN ? "green"
                                                                                                                                                                                                                                                                                                                                                                                                                                              : "blue",
                 button.name, button.waarde);
       }
