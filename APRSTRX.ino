@@ -1,4 +1,5 @@
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+// V1.4 Rename HandleButton->HandleFunction, change SaveConfig and replace APRS setter 
 // V1.3 Code review
 // V1.2 Better highlighted button
 // V1.1 Gradient buttons
@@ -30,7 +31,7 @@
 //  |   T_DO     |     19           |
 //  |   T_IRQ    |     34           |
 //  |------------|------------------|
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -344,7 +345,6 @@ void setup() {
     Serial.println();
   }
 
-
   DrawButton(80, 80, 160, 30, "Connecting to WiFi", "", TFT_BLACK, TFT_WHITE, "");
 
   if (!EEPROM.begin(EEPROM_SIZE)) {
@@ -389,23 +389,7 @@ void setup() {
   SetDraVolume(settings.volume);
   SetDraSettings();
   APRS_init(ADC_REFERENCE, OPEN_SQUELCH);
-  APRS_setCallsign(settings.call, settings.ssid);
-  APRS_setDestination(settings.dest, settings.destSsid);
-  APRS_setSymbol(settings.symbool);
-  APRS_setPath1(settings.path1, settings.path1Ssid);
-  APRS_setPath2(settings.path2, settings.path2Ssid);
-  APRS_setPower(settings.power);
-  APRS_setHeight(settings.height);
-  APRS_setGain(settings.gain);
-  APRS_setDirectivity(settings.directivity);
-  APRS_setPreamble(settings.preAmble);
-  APRS_setTail(settings.tail);
-  APRS_setLat(Deg2Nmea(settings.lat, true));
-  APRS_setLon(Deg2Nmea(settings.lon, false));
-  APRS_printSettings();
-
-  APRSGatewayUpdate();
-  aprsGatewayRefreshed = millis();
+  SetAPRSParameters();
 
   if (wifiAvailable || wifiAPMode) {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -455,6 +439,7 @@ void setup() {
     server.on("/store", HTTP_GET, [](AsyncWebServerRequest *request) {
       SaveSettings(request);
       SaveConfig();
+      SetAPRSParameters();
       request->send_P(200, "text/html", settings_html, Processor);
     });
 
@@ -478,6 +463,26 @@ void setup() {
   DrawScreen();
 }
 
+void SetAPRSParameters(){
+  APRS_setCallsign(settings.call, settings.ssid);
+  APRS_setDestination(settings.dest, settings.destSsid);
+  APRS_setSymbol(settings.symbool);
+  APRS_setPath1(settings.path1, settings.path1Ssid);
+  APRS_setPath2(settings.path2, settings.path2Ssid);
+  APRS_setPower(settings.power);
+  APRS_setHeight(settings.height);
+  APRS_setGain(settings.gain);
+  APRS_setDirectivity(settings.directivity);
+  APRS_setPreamble(settings.preAmble);
+  APRS_setTail(settings.tail);
+  APRS_setLat(Deg2Nmea(settings.lat, true));
+  APRS_setLon(Deg2Nmea(settings.lon, false));
+  APRS_printSettings();
+
+  APRSGatewayUpdate();
+  aprsGatewayRefreshed = millis();
+}
+
 bool Connect2WiFi() {
   startTime = millis();
   Serial.print("Connect to Multi WiFi");
@@ -499,9 +504,9 @@ void loop() {
 
   if (commandButton > "") {
     if (commandButton == "ToLeft" || commandButton == "ToRight") {
-      HandleButton(commandButton, -1, 0);
+      HandleFunction(commandButton, -1, 0);
     } else {
-      HandleButton(commandButton, false);
+      HandleFunction(commandButton, false);
     }
     commandButton = "";
     ClearButtons();
@@ -544,7 +549,7 @@ void loop() {
           Serial.print(buttons[i].name);
           Serial.print(" pressed:");
           delay(100);
-          HandleButton(buttons[i], x, y);
+          HandleFunction(buttons[i], x, y);
         }
       }
     }
@@ -584,18 +589,18 @@ void loop() {
     }
     if (millis() - startPress > 2000) {
       Button button = FindButtonByName("Scan");
-      HandleButton(button, -1, 0);
+      HandleFunction(button, -1, 0);
       delay(200);
     } else {
       if (firstBtnValue < 2) {
         Button button = FindButtonByName("ToRight");
-        HandleButton(button, -1, 0);
+        HandleFunction(button, -1, 0);
         delay(200);
       }
 
       if (firstBtnValue > 1 && firstBtnValue < 2048) {
         Button button = FindButtonByName("ToLeft");
-        HandleButton(button, -1, 0);
+        HandleFunction(button, -1, 0);
         delay(200);
       }
     }
@@ -617,7 +622,7 @@ void loop() {
 
   if (millis() - saveTime > 10000 && scanMode == SCAN_STOPPED) {
     saveTime = millis();
-    if (!CompareConfig()) SaveConfig();
+    SaveConfig();
   }
 
   if (millis() - activeBtnStart > 10000) {
@@ -1281,29 +1286,29 @@ void DrawBox(int xPos, int yPos, int width, int height) {
 /***************************************************************************************
 **            Handle button
 ***************************************************************************************/
-void HandleButton(String buttonName) {
-  HandleButton(buttonName, true);
+void HandleFunction(String buttonName) {
+  HandleFunction(buttonName, true);
 }
 
-void HandleButton(String buttonName, bool doDraw) {
+void HandleFunction(String buttonName, bool doDraw) {
   Button button = FindButtonByName(buttonName);
-  HandleButton(button, 0, 0, doDraw);
+  HandleFunction(button, 0, 0, doDraw);
 }
 
-void HandleButton(String buttonName, int x, int y) {
-  HandleButton(buttonName, x, y, true);
+void HandleFunction(String buttonName, int x, int y) {
+  HandleFunction(buttonName, x, y, true);
 }
 
-void HandleButton(String buttonName, int x, int y, bool doDraw) {
+void HandleFunction(String buttonName, int x, int y, bool doDraw) {
   Button button = FindButtonByName(buttonName);
-  HandleButton(button, x, y, doDraw);
+  HandleFunction(button, x, y, doDraw);
 }
 
-void HandleButton(Button button, int x, int y) {
-  HandleButton(button, x, y, true);
+void HandleFunction(Button button, int x, int y) {
+  HandleFunction(button, x, y, true);
 }
 
-void HandleButton(Button button, int x, int y, bool doDraw) {
+void HandleFunction(Button button, int x, int y, bool doDraw) {
   if (button.name == "ToRight") {
     activeBtnStart = millis();
     if (activeBtn == FindButtonIDByName("Freq")) {
@@ -1940,11 +1945,16 @@ void PrintTXTLine() {
 /***************************************************************************************
 **            EEPROM Routines
 ***************************************************************************************/
+
 bool SaveConfig() {
-  for (unsigned int t = 0; t < sizeof(settings); t++)
-    EEPROM.write(offsetEEPROM + t, *((char *)&settings + t));
-  EEPROM.commit();
-  Serial.println("Configuration:saved");
+  bool commitEeprom = false;
+  for (unsigned int t = 0; t < sizeof(settings); t++){
+    if (*((char *)&settings + t) != EEPROM.read(offsetEEPROM + t)){
+      EEPROM.write(offsetEEPROM + t, *((char *)&settings + t));
+      commitEeprom = true;
+    } 
+  }
+  if (commitEeprom) EEPROM.commit();
   return true;
 }
 
@@ -1955,13 +1965,6 @@ bool LoadConfig() {
       *((char *)&settings + t) = EEPROM.read(offsetEEPROM + t);
   } else retVal = false;
   Serial.println("Configuration:" + retVal ? "Loaded" : "Not loaded");
-  return retVal;
-}
-
-bool CompareConfig() {
-  bool retVal = true;
-  for (unsigned int t = 0; t < sizeof(settings); t++)
-    if (*((char *)&settings + t) != EEPROM.read(offsetEEPROM + t)) retVal = false;
   return retVal;
 }
 
