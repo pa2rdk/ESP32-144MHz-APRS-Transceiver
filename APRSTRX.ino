@@ -269,6 +269,8 @@ int debugLine = 0;
 long startTime = millis();
 long gpsTime = millis();
 long saveTime = millis();
+long scanCheck = millis();
+long lastPressed = millis();
 long startedDebugScreen = millis();
 long aprsGatewayRefreshed = millis();
 long webRefresh = millis();
@@ -512,7 +514,7 @@ void loop() {
     ClearButtons();
   }
 
-  if (scanMode == SCAN_INPROCES) {
+  if (scanMode == SCAN_INPROCES && millis() - scanCheck > 100) {
     if (settings.freqType == FindButtonIDByName("Freq")) {
       settings.rxChannel++;
       if (!settings.isUHF && settings.rxChannel == settings.maxChannel) settings.rxChannel = 0;
@@ -536,23 +538,25 @@ void loop() {
     DrawButton("Reverse");
     DrawButton("Tone");
     RefreshWebPage();
-    delay(100);
+    scanCheck = millis();
   }
-
-  uint16_t x = 0, y = 0;
-  bool pressed = tft.getTouch(&x, &y);
-  if (pressed) {
-    int showVal = ShowControls();
-    for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
-      if ((buttons[i].pageNo & showVal) > 0) {
-        if (x >= buttons[i].xPos && x <= buttons[i].xPos + buttons[i].width && y >= buttons[i].yPos && y <= buttons[i].yPos + buttons[i].height) {
-          Serial.print(buttons[i].name);
-          Serial.print(" pressed:");
-          delay(100);
-          HandleFunction(buttons[i], x, y);
+  
+  if (millis() - lastPressed > 100) {
+    uint16_t x = 0, y = 0;
+    bool pressed = tft.getTouch(&x, &y);
+    if (pressed) {
+      int showVal = ShowControls();
+      for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
+        if ((buttons[i].pageNo & showVal) > 0) {
+          if (x >= buttons[i].xPos && x <= buttons[i].xPos + buttons[i].width && y >= buttons[i].yPos && y <= buttons[i].yPos + buttons[i].height) {
+            Serial.print(buttons[i].name);
+            Serial.print(" pressed:");
+            HandleFunction(buttons[i], x, y);
+          }
         }
       }
     }
+    lastPressed = millis();
   }
   WaitForWakeUp();
 
