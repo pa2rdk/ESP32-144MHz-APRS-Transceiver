@@ -33,7 +33,7 @@ const char index_html[] PROGMEM = R"rawliteral(
   </div>
   <hr>
   <div class="topnav" style="background-color: lightblue; ">
-    <table width="100%">
+    <table class="fwidth">
       <tbody>
         <tr>
           <td style="text-align:left">
@@ -123,7 +123,7 @@ const char index_html[] PROGMEM = R"rawliteral(
   }
   </script>
   </body>
-  </html>v
+  </html>
 )rawliteral";
 
 const char nummers_html[] PROGMEM = R"rawliteral(
@@ -159,7 +159,7 @@ const char nummers_html[] PROGMEM = R"rawliteral(
   </div>
   <hr>
   <div class="topnav" style="background-color: lightblue; ">
-  <table width="100%">
+  <table class="fwidth">
       <tbody>
       <tr>
           <td style="text-align:left">
@@ -281,7 +281,7 @@ const char repeaters_html[] PROGMEM = R"rawliteral(
 
   <hr>  
   <div class="topnav" style="background-color: lightblue; ">
-  <table width="100%">
+  <table class="fwidth">
       <tbody>
       <tr>
           <td style="text-align:left">
@@ -860,4 +860,5 @@ body {
     font-size: 1.4rem;  
 }
 })rawliteral";
+
 

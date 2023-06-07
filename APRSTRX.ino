@@ -42,7 +42,7 @@
 #include "NTP_Time.h"
 #include <TinyGPS++.h>
 #include <LibAPRS.h>
-#include <AsyncTCP.h>
+//#include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <esp_task_wdt.h>
 
