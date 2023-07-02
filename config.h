@@ -2,7 +2,8 @@
 
 const wlanSSID wifiNetworks[] {
     {"PI4RAZ","PI4RAZ_Zoetermeer"},
-    {"Loretz_Gast", "Lor_Steg_98"}
+    {"Loretz_Gast", "Lor_Steg_98"},
+    {"FHanna", "Kleinsteg71"}
 };
 
 const Repeater repeaters[] = {
@@ -83,7 +84,7 @@ const CTCSSCode cTCSSCodes[] = {
 };
 
 Settings settings = {
-    '#',                //chkDigit
+    '%',                //chkDigit
     0,                  //isUHF
     64,                 //aprsChannel
     140,                //rxChannel
@@ -136,7 +137,7 @@ Settings settings = {
     4.461667,           //longitude
     1,                  //useAPRS
     8,                  //mikeLevel
-    1,                  //repeatSetDRA
+    3,                  //repeatSetDRA
     0,                  //preEmphase
     0,                  //highPass
     0,                  //lowPass
