@@ -137,7 +137,7 @@ Settings settings = {
     4.461667,           //longitude
     1,                  //useAPRS
     8,                  //mikeLevel
-    3,                  //repeatSetDRA
+    1,                  //repeatSetDRA
     0,                  //preEmphase
     0,                  //highPass
     0,                  //lowPass

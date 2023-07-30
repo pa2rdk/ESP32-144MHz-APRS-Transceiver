@@ -1,4 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+// V2.0 GPS and DRA separated
+//      GPS is connected to pin 39 (only RX)
+//      DRA is connected to 16 (RX) and 17 (TX)
+//      Implemented S meter
 // V1.4 Rename HandleButton->HandleFunction, change SaveConfig and replace APRS setter 
 // V1.3 Code review
 // V1.2 Better highlighted button
@@ -45,6 +49,7 @@
 //#include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <esp_task_wdt.h>
+#include <HardwareSerial.h>
 
 #define offsetEEPROM 32
 #define EEPROM_SIZE 2048
@@ -67,6 +72,8 @@
 #define BTN_ARROW 2048
 #define BTN_NUMERIC 1024
 
+#define RXD1 39
+#define TXD1 25
 #define RXD2 16
 #define TXD2 17
 #define PTTIN 27
@@ -261,6 +268,7 @@ uint8_t activeBtn = -1;
 String commandButton = "";
 long activeBtnStart = millis();
 long lastBeacon = millis();
+long lastDRARead = millis();
 int actualPage = 1;
 int lastPage = 8;
 int beforeDebugPage = 0;
@@ -286,6 +294,9 @@ int scanMode = SCAN_STOPPED;
 uint16_t lastCourse = 0;
 char httpBuf[120] = "\0";
 char buf[300] = "\0";
+char draBuffer[300] = "\0";
+int draBufferLength = 0;
+int oldSwr, swr = 0;
 int32_t keyboardNumber = 0;
 bool dirtyScreen = false;
 
@@ -306,6 +317,9 @@ AsyncWebServer server(80);
 AsyncEventSource events("/events");
 Memory memories[10] = {};
 int memTeller = 0;
+
+HardwareSerial GPSSerial(1);
+HardwareSerial DRASerial(2);
 
 #include "webpages.h";
 
@@ -332,7 +346,8 @@ void setup() {
   ledcAttachPin(DISPLAYLEDPIN, ledChannelforTFT);
 
   Serial.begin(115200);
-  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
+  GPSSerial.begin(9600, SERIAL_8N1, RXD1, TXD1);
+  DRASerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
 
   tft.init();
   tft.setRotation(screenRotation);
@@ -387,9 +402,19 @@ void setup() {
 
   ledcWrite(ledChannelforTFT, 256 - (settings.currentBrightness * 2.56));
   digitalWrite(HIPOWERPIN, !settings.draPower);  // low power from DRA
+  delay(25);
   SetFreq(0, 0, 0, false);
+  delay(100);
+  ReadDRAPort();
+  SetFreq(0, 0, 0, false);
+  delay(100);
+  ReadDRAPort();
   SetDraVolume(settings.volume);
+  delay(100);
+  ReadDRAPort();
   SetDraSettings();
+  delay(100);
+  ReadDRAPort();
   APRS_init(ADC_REFERENCE, OPEN_SQUELCH);
   SetAPRSParameters();
 
@@ -616,10 +641,28 @@ void loop() {
     lastMinute = minute();
   }
 
-  while (Serial2.available()) gps.encode(Serial2.read());
+  if (GPSSerial.available()){
+    while (GPSSerial.available()){
+      gps.encode(GPSSerial.read());
+    } 
+    //Serial.println("GPS Data received");
+  }
+
   if (millis() - gpsTime > 1000) {
     gpsTime = millis();
     PrintGPSInfo();
+  }
+
+  if (!isPTT){
+    ReadDRAPort();
+    if (millis() - lastDRARead > 250){
+      GetDraRSSI();
+      lastDRARead = millis();
+    }
+    if (oldSwr != swr){
+      oldSwr = swr;
+      DrawMeter(2, 100, 314, 30, swr, isPTT, true);
+    }
   }
 
   bool isFromPTT = CheckAndSetPTT(false);
@@ -1012,8 +1055,8 @@ void DrawFrequency(bool isAPRS, bool doClear) {
       tft.setTextColor(TFT_BLACK, TFT_RED);
       tft.drawString("TX", 50, 62, 4);
     } else tft.fillCircle(50, 60, 24, TFT_BLACK);
-    DrawMeter(2, 100, 314, 30, isPTT ? 4 : 10, isPTT);
-    //RefreshWebPage();
+    DrawMeter(2, 100, 314, 30, swr, isPTT, false);
+    lastMinute = -1;
   }
 }
 
@@ -1042,39 +1085,41 @@ void DrawTime() {
 /***************************************************************************************
 **            Draw meter
 ***************************************************************************************/
-void DrawMeter(int xPos, int yPos, int width, int height, int value, bool isTX) {
-  if (!isTX) value = squelshClosed ? 0 : 10;
+void DrawMeter(int xPos, int yPos, int width, int height, int value, bool isTX, bool onlyBlocks) {
+  //if (!isTX) value = squelshClosed ? 0 : 10;
   if (isTX) value = settings.draPower ? 9 : 4;
-  tft.setTextDatum(MC_DATUM);
-  DrawBox(xPos, yPos, width, height);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setTextPadding(tft.textWidth("S"));
-  tft.drawString(isTX ? "P" : "S", xPos + 20, yPos + (height / 2) + 1, 4);
-  tft.drawLine(xPos + 40, yPos + 25, xPos + 200, yPos + 25, TFT_WHITE);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  for (int i = 0; i < 9; i++) {
-    sprintf(buf, "%d", i + 1);
-    tft.setTextPadding(tft.textWidth(buf));
-    tft.drawString(buf, xPos + 40 + (i * 20), yPos + 8, 1);
-    tft.drawLine(xPos + 40 + (i * 20), yPos + 20, xPos + 40 + (i * 20), yPos + 25, TFT_WHITE);
+  if (!onlyBlocks){
+    tft.setTextDatum(MC_DATUM);
+    DrawBox(xPos, yPos, width, height);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setTextPadding(tft.textWidth("S"));
+    tft.drawString(isTX ? "P" : "S", xPos + 20, yPos + (height / 2) + 1, 4);
+    tft.drawLine(xPos + 40, yPos + 25, xPos + 200, yPos + 25, TFT_WHITE);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    for (int i = 0; i < 9; i++) {
+      sprintf(buf, "%d", i + 1);
+      tft.setTextPadding(tft.textWidth(buf));
+      tft.drawString(buf, xPos + 40 + (i * 20), yPos + 8, 1);
+      tft.drawLine(xPos + 40 + (i * 20), yPos + 20, xPos + 40 + (i * 20), yPos + 25, TFT_WHITE);
+    }
+
+    tft.drawLine(xPos + 200, yPos + 25, xPos + 300, yPos + 25, TFT_BLUE);
+    tft.setTextColor(TFT_BLUE, TFT_BLACK);
+    for (int i = 10; i < 50; i = i + 10) {
+      sprintf(buf, "+%d", i);
+      tft.setTextPadding(tft.textWidth(buf));
+      tft.drawString(buf, xPos + 200 + (i * 2), yPos + 8, 1);
+      tft.drawLine(xPos + 200 + (i * 2), yPos + 20, xPos + 200 + (i * 2), yPos + 25, TFT_BLUE);
+    }
+
+    tft.setTextPadding(tft.textWidth("dB"));
+    tft.drawString("dB", xPos + 300, yPos + 8, 1);
+    tft.drawLine(xPos + 300, yPos + 18, xPos + 300, yPos + 24, TFT_BLUE);
   }
-
-  tft.drawLine(xPos + 200, yPos + 25, xPos + 300, yPos + 25, TFT_BLUE);
-  tft.setTextColor(TFT_BLUE, TFT_BLACK);
-  for (int i = 10; i < 50; i = i + 10) {
-    sprintf(buf, "+%d", i);
-    tft.setTextPadding(tft.textWidth(buf));
-    tft.drawString(buf, xPos + 200 + (i * 2), yPos + 8, 1);
-    tft.drawLine(xPos + 200 + (i * 2), yPos + 20, xPos + 200 + (i * 2), yPos + 25, TFT_BLUE);
-  }
-
-  tft.setTextPadding(tft.textWidth("dB"));
-  tft.drawString("dB", xPos + 300, yPos + 8, 1);
-  tft.drawLine(xPos + 300, yPos + 18, xPos + 300, yPos + 24, TFT_BLUE);
-
-  for (int i = 4; i < (value * 4); i++) {
+  for (int i = 4; i < (14 * 4); i++) {
     uint16_t signColor = TFT_WHITE;
     signColor = (i > 35) ? TFT_RED : TFT_WHITE;
+    if (i>value*4) signColor=TFT_BLACK;
     tft.fillRect(xPos + 20 + (i * 5), yPos + 12, 4, 7, signColor);
   }
 }
@@ -1565,11 +1610,13 @@ void HandleFunction(Button button, int x, int y, bool doDraw) {
 
   if (button.name == "Next") {
     actualPage = actualPage << 1;
+    lastMinute = -1;
     if (actualPage > lastPage) actualPage = 1;
     if (doDraw) DrawScreen();
   }
 
   if (button.name == "Prev") {
+    lastMinute = -1;
     if (actualPage > 1) actualPage = actualPage >> 1;
     if (doDraw) DrawScreen();
   }
@@ -1866,8 +1913,7 @@ void SetDra(uint16_t rxFreq, uint16_t txFreq, byte rxTone, byte txTone, byte squ
   for (int x = 0; x < settings.repeatSetDRA; x++) {
     Serial.println();
     Serial.println(buf);
-    Serial2.println(buf);
-    delay(10);
+    DRASerial.println(buf);
   }
 }
 
@@ -1877,7 +1923,12 @@ void SetDraVolume(byte volume) {
   sprintf(buf, "AT+DMOSETVOLUME=%01d", volume);
   Serial.println();
   Serial.println(buf);
-  Serial2.println(buf);
+  DRASerial.println(buf);
+}
+
+void GetDraRSSI() {
+  sprintf(buf, "RSSI?");
+  DRASerial.println(buf);
 }
 
 void SetDraSettings() {
@@ -1885,14 +1936,43 @@ void SetDraSettings() {
   Serial.println();
   Serial.print("Filter:");
   Serial.println(buf);
-  Serial2.println(buf);
+  DRASerial.println(buf);
 
-  sprintf(buf, "AT+DMOSETMIC=%01d,0", settings.mikeLevel);
-  Serial.println();
-  Serial.print("Mikelevel:");
-  Serial.println(buf);
-  Serial2.println(buf);
+  // sprintf(buf, "AT+DMOSETMIC=%01d,0", settings.mikeLevel);
+  // Serial.println();
+  // Serial.print("Mikelevel:");
+  // Serial.println(buf);
+  // DRASerial.println(buf);
 }
+
+void ReadDRAPort(){
+  bool endLine = false;
+  while (DRASerial.available() && !endLine){
+    char draChar = DRASerial.read();
+    draBuffer[draBufferLength++] = draChar;
+    if (draChar==0xA){
+      draBuffer[draBufferLength++] = '\0';
+      // Serial.print("DRAData:");
+      // Serial.println(draBuffer);
+      if (strcmp(draBuffer, "RSSI")){
+        swr = (atoi(&draBuffer[5]));
+        //swr = swr - 24;
+        if (swr<55){
+          swr = swr /6;
+        } else {
+          swr = 9+((swr-54)/10);
+        }
+        if (swr>14) swr=14;
+        if (squelshClosed && swr>2) swr = 2;
+        //Serial.printf("SWR=%d\r\n",swr);
+      } 
+      draBuffer[0] = '\0';
+      draBufferLength = 0;
+      endLine = true;
+    }
+  }
+}
+
 /***************************************************************************************
 **            Print PrintGPSInfo
 ***************************************************************************************/
