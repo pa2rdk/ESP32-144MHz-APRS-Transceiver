@@ -562,7 +562,6 @@ void loop() {
     DrawButton("Shift");
     DrawButton("Reverse");
     DrawButton("Tone");
-    RefreshWebPage();
     scanCheck = millis();
   }
   
@@ -2191,7 +2190,7 @@ void FillTXFREQ() {
     if (isPTT ^ isReverse) sFreq = GetFreq(settings.rxChannel);
     else sFreq = GetFreq(settings.txChannel);
     sprintf(buf, "%01d.%04d", sFreq.fMHz, sFreq.fKHz);
-  }
+  } else sprintf(buf, "&nbsp");
 }
 
 void FillKEYBFREQ() {
@@ -2204,7 +2203,7 @@ void FillKEYBFREQ() {
 
 void FillREPEATERInfo() {
   buf[0] = '\0';
-  sprintf(buf, "%s - %s", repeaters[settings.repeater].name, repeaters[settings.repeater].city);
+  sprintf(buf, "%s %s", repeaters[settings.repeater].name, repeaters[settings.repeater].city);
 }
 
 void RefreshWebPage() {

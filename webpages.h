@@ -37,7 +37,7 @@ const char index_html[] PROGMEM = R"rawliteral(
     <h1><span id="RXFREQ">%RXFREQ%</span></h1>
   </div>
   <div class="divinfo">    
-    <h4 style="text-align:center;color:yellow""><span id="REPEATERINFO">%REPEATERINFO%</span><span id="TXFREQ">%TXFREQ%</span></h4>
+    <h4 style="text-align:center;color:yellow""><span id="REPEATERINFO">%REPEATERINFO%</span>&nbsp<span id="TXFREQ">%TXFREQ%</span></h4>
   </div>
 
   <hr>
@@ -255,7 +255,6 @@ const char nummers_html[] PROGMEM = R"rawliteral(
     var i = document.getElementById('inputFreq').value;
     i = (i*10000)
     var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/command?setfreq=' + i;
-    alert(s);
     window.location.href = s;
     return false;
   }
