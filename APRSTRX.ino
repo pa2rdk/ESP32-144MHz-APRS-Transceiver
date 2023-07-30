@@ -785,6 +785,7 @@ bool CheckAndSetPTT(bool isAPRS) {
       DrawButton("MOX");
       DrawFrequency(isAPRS);
       delay(10);
+      RefreshWebPage();
     }
   }
   return retVal;
@@ -1122,6 +1123,7 @@ void DrawMeter(int xPos, int yPos, int width, int height, int value, bool isTX, 
     if (i>value*4) signColor=TFT_BLACK;
     tft.fillRect(xPos + 20 + (i * 5), yPos + 12, 4, 7, signColor);
   }
+  RefreshWebPage();
 }
 
 /***************************************************************************************
@@ -2202,7 +2204,7 @@ void FillKEYBFREQ() {
 
 void FillREPEATERInfo() {
   buf[0] = '\0';
-  sprintf(buf, "%s %s", repeaters[settings.repeater].name, repeaters[settings.repeater].city);
+  sprintf(buf, "%s - %s", repeaters[settings.repeater].name, repeaters[settings.repeater].city);
 }
 
 void RefreshWebPage() {
@@ -2220,6 +2222,8 @@ void RefreshWebPage() {
     events.send(buf, "RXFREQ", millis());
     FillTXFREQ();
     events.send(String(buf).c_str(), "TXFREQ", millis());
+    sprintf(buf, "%d", swr);
+    events.send(buf, "SWRINFO", millis());
   }
   webRefresh = millis();
 }
@@ -2231,8 +2235,6 @@ void ClearButtons() {
 }
 
 String Processor(const String &var) {
-  Serial.print("Process: ");
-  Serial.println(var);
   if (var == "APRSINFO") {
     FillAPRSInfo();
     return buf;
@@ -2328,9 +2330,7 @@ String Processor(const String &var) {
     if (i + 1 < (sizeof(buttons) / sizeof(buttons[0]))) {
       Button button = FindButtonInfo(buttons[i]);
       if ((button.pageNo < lastPage || button.pageNo == BTN_ARROW) && button.name != "MOX") {
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue", button.name, button.caption, button.bottomColor == TFT_RED ? "red" : button.bottomColor == TFT_GREEN ? "green"
-                                                                                                                                                                                                                                                                                                                                                                                                                                             : "blue",
-                button.name, button.waarde);
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s; border:solid; border-radius: 2em; background-image: linear-gradient(%s)\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue", String(button.name) == FindButtonNameByID(activeBtn) ? "white, #6781F1" : "#6781F1, #ADD8E6", button.name, button.caption, button.bottomColor == TFT_RED ? "red" : button.bottomColor == TFT_GREEN ? "green":"blue", button.name, button.waarde);
       }
       char buf2[10];
       sprintf(buf2, "%%BUTTONS%d%%", i + 1);
@@ -2345,7 +2345,7 @@ String Processor(const String &var) {
     if (i + 1 < (sizeof(buttons) / sizeof(buttons[0]))) {
       Button button = FindButtonInfo(buttons[i]);
       if (button.pageNo == BTN_NUMERIC) {
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s\"><p>%s</p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, "lightgreen", button.caption, "blue", button.name, button.waarde);
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"border:solid; border-radius: 2em; background-image: linear-gradient(%s)\"><p>%s</p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, "#6781F1, blue", button.caption, "blue", button.name, button.waarde);
       }
       char buf2[10];
       sprintf(buf2, "%%NUMMERS%d%%", i + 1);

@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html>
+    <style>
+html {
+    font-family: Arial; 
+    display: inline-block; 
+    text-align: center;
+    background-color: gray; 
+}
+p { 
+    font-size: 1.2rem;
+}
+body {  
+    margin: 0;
+}
+.hwidth {
+    width: 50%;
+}
+
+.fwidth {
+    width: 100%;
+}
+
+.freqdisp {
+    border: none;
+    background-color: gray;
+    color: yellow;
+    font-size: xx-large;
+    border-bottom: 1px solid gray;
+    text-align: center;
+}
+
+.topnav { 
+    overflow: hidden; 
+    background-color: blue; 
+    color: white; 
+    font-size: 1rem; 
+    line-height: 0%;
+}
+.divinfo { 	
+    overflow: hidden; 
+    background-color: gray; 
+    color: white; 
+    font-size: 0.7rem; 
+    height:100;
+    line-height: 0%;
+}
+.freqinfo { 	
+    overflow: hidden; 
+    background-color: gray;
+    color: yellow; 
+    font-size: 1rem; 
+    line-height: 0%;
+}
+.content { 
+    padding: 20px; 
+}
+.card { 
+    background-color: lightblue; 
+    box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5); 
+    font-size: 0.7rem; 
+}
+.cards { 
+    max-width: 1000px; 
+    margin: 0 auto; 
+    display: grid; 
+    grid-gap: 1rem; 
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+}
+.reading { 
+    font-size: 1.4rem;  
+}
+}
+
+    </style>
+<head>
+  <title>APRS Radio Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <meta http-equiv="refresh" content="1">  -->
+  <link rel="icon" href="data:,">
+  <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+</head>
+<body>
+<div class="topnav">
+  <h1>APRS Radio Server</h1>
+</div>
+<hr>
+<div class="divinfo">
+    <table class="fwidth">
+        <tr>
+            <td>
+                <h4 style="text-align:left;color:lightblue"><span id="APRSINFO">%APRSINFO%</span></h4>
+                <h4 style="text-align:left;color:orange"><span id="GPSINFO">%GPSINFO%</span></h4>
+                <h4 style="text-align:left;color:red"><span id="BEACONINFO">%BEACONINFO%</span></h4>
+            </td>
+            <td style="text-align: right;">
+                <meter id="s-meter"
+                    min="0" max="14"
+                    low="7" high="14" 
+                    value="5" style="width:200px">
+                </meter>
+            </td>
+        </tr>
+    </table>
+</div>
+<hr>
+<table class="fwidth">
+    <tr>
+        <td style="position: absolute; left: 20%; width: 80%;">
+            <div class="freqinfo" class="card" style="border:solid; border-radius: 2em; border-color: black; background-image: linear-gradient(#6781F1, #ADD8E6); width:80%; text-align:center">
+                <h1><span id="RXFREQ">%RXFREQ%</span></h1>
+                <h4 style="text-align:center;color:yellow""><span id="REPEATERINFO"><small><small>%REPEATERINFO%</small></small></span><span id="TXFREQ">%TXFREQ%</span></h4>
+              </div>
+        </td>
+    </tr>
+</table>
+
+
+<hr>
+<div class="content">
+  <div class="cards">
+    %BUTTONS0%
+
+    <div id="BTN%s" class="card" style="border:solid; border-radius: 2em; background-image: linear-gradient(#6781F1, #ADD8E6)"><p>%s</p><p style="background-color:%s;color:white"><span class="reading"><span id="%s">%s</span></span></p></div>
+  </div>
+</div>
+<hr>
+<div class="topnav" style="background-color: lightblue; ">
+  <table class="fwidth">
+    <tbody>
+      <tr>
+        <td style="text-align:left">
+          <h4>Copyright (c) Robert de Kok, PA2RDK</h4>
+        </td>
+        <td style="text-align:right">
+          <a href="/settings"><button>Settings</button></a>
+          <a href="/reboot"><button>Reboot</button></a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+if (!!window.EventSource) {
+  var source = new EventSource('/events');
+
+  source.addEventListener('open', function(e) {
+    console.log("Events Connected");
+  }, false);
+
+  source.addEventListener('error', function(e) {
+    if (e.target.readyState != EventSource.OPEN) {
+      console.log("Events Disconnected");
+    }
+  }, false);
+
+  source.addEventListener('message', function(e) {
+    console.log("message", e.data);
+  }, false);
+
+  source.addEventListener('APRSINFO', function(e) {
+    console.log("APRSINFO", e.data);
+    document.getElementById("APRSINFO").innerHTML = e.data;
+  }, false);
+
+  source.addEventListener('GPSINFO', function(e) {
+    console.log("GPSINFO", e.data);
+    document.getElementById("GPSINFO").innerHTML = e.data;
+  }, false);
+
+  source.addEventListener('RXFREQ', function(e) {
+    console.log("RXFREQ", e.data);
+    document.getElementById("RXFREQ").innerHTML = e.data;
+  }, false);
+
+  source.addEventListener('REPEATERINFO', function(e) {
+    console.log("REPEATERINFO", e.data);
+    document.getElementById("REPEATERINFO").innerHTML = e.data;
+  }, false);
+
+  source.addEventListener('BEACONINFO', function(e) {
+    console.log("BEACONINFO", e.data);
+    document.getElementById("BEACONINFO").innerHTML = e.data;
+  }, false);
+
+  source.addEventListener('TXFREQ', function(e) {
+    console.log("TXFREQ", e.data);
+    document.getElementById("TXFREQ").innerHTML = e.data;
+  }, false);
+}
+
+if(typeof window.history.pushState == 'function') {
+  if (window.location.href.lastIndexOf('/command')>10 || window.location.href.lastIndexOf('/reboot')>10){
+    console.log(window.location.href);
+    window.location.href =  window.location.href.substring(0,window.location.href.lastIndexOf('/'))
+  }
+}
+
+document.getElementById('BTNFreq').onclick = function(e){
+  myObj = document.getElementById("BTNFreq");
+  if (myObj.style.backgroundColor=="white"){
+    var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/nummers';
+    window.location.href = s;  
+    return false;
+  } else return true;
+}
+
+document.getElementById('BTNRPT').onclick = function(e){
+  myObj = document.getElementById("BTNRPT");
+  if (myObj.style.backgroundColor=="white"){
+    var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/repeaters';
+    window.location.href = s;  
+    return false;
+  } else return true;
+}
+</script>
+</body>
+</html>

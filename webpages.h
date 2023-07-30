@@ -14,17 +14,32 @@ const char index_html[] PROGMEM = R"rawliteral(
   </div>
   <hr>
   <div class="divinfo">
-    <h4 style="text-align:left;color:lightblue"><span id="APRSINFO">%APRSINFO%</span></h4>
-    <h4 style="text-align:left;color:orange"><span id="GPSINFO">%GPSINFO%</span></h4>
-    <h4 style="text-align:left;color:red"><span id="BEACONINFO">%BEACONINFO%</span></h4>
+    <table class="fwidth">  
+        <tr>
+            <td>
+              <h4 style="text-align:left;color:lightblue"><span id="APRSINFO">%APRSINFO%</span></h4>
+              <h4 style="text-align:left;color:orange"><span id="GPSINFO">%GPSINFO%</span></h4>
+              <h4 style="text-align:left;color:red"><span id="BEACONINFO">%BEACONINFO%</span></h4>
+            </td>
+            <td style="text-align: right;">
+                <meter id="s-meter"
+                    min="0" max="14"
+                    low="7" high="14" 
+                    value="5" style="width:200px">
+                </meter>
+            </td>
+        </tr>
+    </table>
   </div>
   <hr>
+
   <div class="freqinfo">
     <h1><span id="RXFREQ">%RXFREQ%</span></h1>
   </div>
   <div class="divinfo">    
-    <h4 style="text-align:center;color:yellow""><span id="REPEATERINFO">%REPEATERINFO%</span>      <span id="TXFREQ">%TXFREQ%</span></h4>
+    <h4 style="text-align:center;color:yellow""><span id="REPEATERINFO">%REPEATERINFO%</span><span id="TXFREQ">%TXFREQ%</span></h4>
   </div>
+
   <hr>
   <div class="content">
     <div class="cards">
@@ -74,6 +89,11 @@ const char index_html[] PROGMEM = R"rawliteral(
     source.addEventListener('GPSINFO', function(e) {
       console.log("GPSINFO", e.data);
       document.getElementById("GPSINFO").innerHTML = e.data;
+    }, false);
+
+    source.addEventListener('SWRINFO', function(e) {
+      console.log("SWRINFO", e.data);
+      document.getElementById('s-meter').setAttribute('value', e.data);
     }, false);
 
     source.addEventListener('RXFREQ', function(e) {
@@ -235,6 +255,7 @@ const char nummers_html[] PROGMEM = R"rawliteral(
     var i = document.getElementById('inputFreq').value;
     i = (i*10000)
     var s = window.location.href.substring(0,window.location.href.lastIndexOf('/')) + '/command?setfreq=' + i;
+    alert(s);
     window.location.href = s;
     return false;
   }
@@ -794,7 +815,7 @@ html {
     font-family: Arial; 
     display: inline-block; 
     text-align: center;
-    background-color: black; 
+    background-color: gray; 
 }
 p { 
     font-size: 1.2rem;
@@ -810,9 +831,15 @@ body {
     width: 100%;
 }
 
+.kader {
+    position: absolute; 
+    left: 20%; 
+    width: 80%;
+}
+
 .freqdisp {
     border: none;
-    background-color: black;
+    background-color: gray;
     color: yellow;
     font-size: xx-large;
     border-bottom: 1px solid gray;
@@ -828,7 +855,7 @@ body {
 }
 .divinfo { 	
     overflow: hidden; 
-    background-color: black; 
+    background-color: gray; 
     color: white; 
     font-size: 0.7rem; 
     height:100;
@@ -836,7 +863,7 @@ body {
 }
 .freqinfo { 	
     overflow: hidden; 
-    background-color: black;
+    background-color: gray;
     color: yellow; 
     font-size: 1rem; 
     line-height: 0%;
