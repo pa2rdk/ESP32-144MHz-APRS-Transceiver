@@ -784,7 +784,6 @@ bool CheckAndSetPTT(bool isAPRS) {
       DrawButton("MOX");
       DrawFrequency(isAPRS);
       delay(10);
-      RefreshWebPage();
     }
   }
   return retVal;
@@ -1122,7 +1121,6 @@ void DrawMeter(int xPos, int yPos, int width, int height, int value, bool isTX, 
     if (i>value*4) signColor=TFT_BLACK;
     tft.fillRect(xPos + 20 + (i * 5), yPos + 12, 4, 7, signColor);
   }
-  RefreshWebPage();
 }
 
 /***************************************************************************************
