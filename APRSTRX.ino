@@ -20,10 +20,10 @@
 //  |Display 2.8 |      ESP32       |
 //  |  ILI9341   |                  |
 //  |------------|------------------|
-//  |   Vcc      |     3V3          |  pin 33 with 18K to 3.3 volt and 18K to ground.
-//  |   GND      |     GND          |  pin 32 (Beeper) via 2K to base V1  BC547
-//  |   CS       |     15           |  Collector via beeper to 5v
-//  |   Reset    |      4           |  Emmitor to ground
+//  |   Vcc      |     3V3          |  
+//  |   GND      |     GND          |  
+//  |   CS       |     15           |  
+//  |   Reset    |      4           |  
 //  |   D/C      |      2           |
 //  |   SDI      |     23           |
 //  |   SCK      |     18           |
