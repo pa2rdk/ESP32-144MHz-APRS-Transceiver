@@ -73,7 +73,7 @@
 #define BTN_NUMERIC 1024
 
 #define RXD1 39
-#define TXD1 25
+#define TXD1 32
 #define RXD2 16
 #define TXD2 17
 #define PTTIN 27
