@@ -3,7 +3,7 @@
 //      GPS is connected to pin 39 (only RX)
 //      DRA is connected to 16 (RX) and 17 (TX)
 //      Implemented S meter
-// V1.4 Rename HandleButton->HandleFunction, change SaveConfig and replace APRS setter 
+// V1.4 Rename HandleButton->HandleFunction, change SaveConfig and replace APRS setter
 // V1.3 Code review
 // V1.2 Better highlighted button
 // V1.1 Gradient buttons
@@ -111,7 +111,7 @@ typedef struct {  // Frequency parts
   int fKHz;
 } SFreq;
 
-typedef struct {  // Buttons
+typedef struct {        // Buttons
   const char *name;     // Buttonname
   const char *caption;  // Buttoncaption
   char waarde[12];      // Buttontext
@@ -490,7 +490,7 @@ void setup() {
   DrawScreen();
 }
 
-void SetAPRSParameters(){
+void SetAPRSParameters() {
   APRS_setCallsign(settings.call, settings.ssid);
   APRS_setDestination(settings.dest, settings.destSsid);
   APRS_setSymbol(settings.symbool);
@@ -564,7 +564,7 @@ void loop() {
     DrawButton("Tone");
     scanCheck = millis();
   }
-  
+
   if (millis() - lastPressed > 100) {
     uint16_t x = 0, y = 0;
     bool pressed = tft.getTouch(&x, &y);
@@ -640,10 +640,10 @@ void loop() {
     lastMinute = minute();
   }
 
-  if (GPSSerial.available()){
-    while (GPSSerial.available()){
+  if (GPSSerial.available()) {
+    while (GPSSerial.available()) {
       gps.encode(GPSSerial.read());
-    } 
+    }
     //Serial.println("GPS Data received");
   }
 
@@ -652,13 +652,13 @@ void loop() {
     PrintGPSInfo();
   }
 
-  if (!isPTT){
+  if (!isPTT) {
     ReadDRAPort();
-    if (millis() - lastDRARead > 250){
+    if (millis() - lastDRARead > 250) {
       GetDraRSSI();
       lastDRARead = millis();
     }
-    if (oldSwr != swr){
+    if (oldSwr != swr) {
       oldSwr = swr;
       DrawMeter(2, 100, 314, 30, swr, isPTT, true);
     }
@@ -1088,7 +1088,7 @@ void DrawTime() {
 void DrawMeter(int xPos, int yPos, int width, int height, int value, bool isTX, bool onlyBlocks) {
   //if (!isTX) value = squelshClosed ? 0 : 10;
   if (isTX) value = settings.draPower ? 9 : 4;
-  if (!onlyBlocks){
+  if (!onlyBlocks) {
     tft.setTextDatum(MC_DATUM);
     DrawBox(xPos, yPos, width, height);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
@@ -1119,7 +1119,7 @@ void DrawMeter(int xPos, int yPos, int width, int height, int value, bool isTX, 
   for (int i = 4; i < (14 * 4); i++) {
     uint16_t signColor = TFT_WHITE;
     signColor = (i > 35) ? TFT_RED : TFT_WHITE;
-    if (i>value*4) signColor=TFT_BLACK;
+    if (i > value * 4) signColor = TFT_BLACK;
     tft.fillRect(xPos + 20 + (i * 5), yPos + 12, 4, 7, signColor);
   }
   RefreshWebPage();
@@ -1946,27 +1946,27 @@ void SetDraSettings() {
   // DRASerial.println(buf);
 }
 
-void ReadDRAPort(){
+void ReadDRAPort() {
   bool endLine = false;
-  while (DRASerial.available() && !endLine){
+  while (DRASerial.available() && !endLine) {
     char draChar = DRASerial.read();
     draBuffer[draBufferLength++] = draChar;
-    if (draChar==0xA){
+    if (draChar == 0xA) {
       draBuffer[draBufferLength++] = '\0';
       // Serial.print("DRAData:");
       // Serial.println(draBuffer);
-      if (strcmp(draBuffer, "RSSI")){
+      if (strcmp(draBuffer, "RSSI")) {
         swr = (atoi(&draBuffer[5]));
         //swr = swr - 24;
-        if (swr<55){
-          swr = swr /6;
+        if (swr < 55) {
+          swr = swr / 6;
         } else {
-          swr = 9+((swr-54)/10);
+          swr = 9 + ((swr - 54) / 10);
         }
-        if (swr>14) swr=14;
-        if (squelshClosed && swr>2) swr = 2;
+        if (swr > 14) swr = 14;
+        if (squelshClosed && swr > 2) swr = 2;
         //Serial.printf("SWR=%d\r\n",swr);
-      } 
+      }
       draBuffer[0] = '\0';
       draBufferLength = 0;
       endLine = true;
@@ -2033,11 +2033,11 @@ void PrintTXTLine() {
 
 bool SaveConfig() {
   bool commitEeprom = false;
-  for (unsigned int t = 0; t < sizeof(settings); t++){
-    if (*((char *)&settings + t) != EEPROM.read(offsetEEPROM + t)){
+  for (unsigned int t = 0; t < sizeof(settings); t++) {
+    if (*((char *)&settings + t) != EEPROM.read(offsetEEPROM + t)) {
       EEPROM.write(offsetEEPROM + t, *((char *)&settings + t));
       commitEeprom = true;
-    } 
+    }
   }
   if (commitEeprom) EEPROM.commit();
   return true;
@@ -2221,6 +2221,7 @@ void RefreshWebPage() {
     events.send(buf, "RXFREQ", millis());
     FillTXFREQ();
     events.send(String(buf).c_str(), "TXFREQ", millis());
+    buf[0] = '\0';
     sprintf(buf, "%d", swr);
     events.send(buf, "SWRINFO", millis());
   }
@@ -2329,7 +2330,9 @@ String Processor(const String &var) {
     if (i + 1 < (sizeof(buttons) / sizeof(buttons[0]))) {
       Button button = FindButtonInfo(buttons[i]);
       if ((button.pageNo < lastPage || button.pageNo == BTN_ARROW) && button.name != "MOX") {
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s; border:solid; border-radius: 2em; background-image: linear-gradient(%s)\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue", String(button.name) == FindButtonNameByID(activeBtn) ? "white, #6781F1" : "#6781F1, #ADD8E6", button.name, button.caption, button.bottomColor == TFT_RED ? "red" : button.bottomColor == TFT_GREEN ? "green":"blue", button.name, button.waarde);
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s; border:solid; border-radius: 2em; background-image: linear-gradient(%s)\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue", String(button.name) == FindButtonNameByID(activeBtn) ? "white, #6781F1" : "#6781F1, #ADD8E6", button.name, button.caption, button.bottomColor == TFT_RED ? "red" : button.bottomColor == TFT_GREEN ? "green"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          : "blue",
+                button.name, button.waarde);
       }
       char buf2[10];
       sprintf(buf2, "%%BUTTONS%d%%", i + 1);
