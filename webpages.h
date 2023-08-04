@@ -37,11 +37,13 @@ const char index_html[] PROGMEM = R"rawliteral(
       <h4 style="text-align:center;color:yellow; margin-bottom: 1.0em;"><span id="REPEATERINFO">%REPEATERINFO%</span>&nbsp<span id="TXFREQ">%TXFREQ%</span></h4>
     </div>
   </div>
-
+  <hr>
+  <div style="border:solid; border-radius: 1em; border-color: black; background-image: linear-gradient(black, blue); text-align:center">
   <div class="content">
     <div class="cards">
       %BUTTONS0%
     </div>
+  </div>
   </div>
   <hr>
   <div class="topnav" style="background-color: lightblue; ">
@@ -163,6 +165,8 @@ const char nummers_html[] PROGMEM = R"rawliteral(
       <h4 style="text-align:center;color:yellow""><span id="RXFREQ"><input class="freqdisp" readonly type="text" placeholder="Type " id="inputFreq" value="%KEYBFREQ%"></span></h4>
     </div>
   </div>
+  <hr>
+  <div style="border:solid; border-radius: 1em; border-color: black; background-image: linear-gradient(black, blue); text-align:center">
   <div class="divinfo">
     <form action="/numbers" method="get">
 
@@ -173,6 +177,7 @@ const char nummers_html[] PROGMEM = R"rawliteral(
     </div>
 
     </form><br>
+  </div>
   </div>
   <hr>
   <div class="topnav" style="background-color: lightblue; ">
@@ -352,7 +357,8 @@ const char settings_html[] PROGMEM = R"rawliteral(
       <h4 style="text-align:center;color:yellow;margin-top: 1.5em;margin-bottom: 1.5em;"><span>Settings</span></h4>
     </div>
   </div>
-
+  <hr>
+  <div style="border:solid; border-radius: 1em; border-color: black; background-image: linear-gradient(black, blue); text-align:center">
   <div class="divinfo">
     <form action="/store" method="get">
 
@@ -780,6 +786,7 @@ const char settings_html[] PROGMEM = R"rawliteral(
       </div>
       
     </form><br>
+  </div>
   </div>
   <hr>
 
