@@ -47,6 +47,9 @@
 #include <TinyGPS++.h>
 #include <LibAPRS.h>
 //#include <AsyncTCP.h>
+//#include <ESPAsyncWebServer.h>
+//#include <ESPAsyncWebSrv.h>
+#include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <esp_task_wdt.h>
 #include <HardwareSerial.h>
@@ -251,8 +254,8 @@ typedef struct {
 } CTCSSCode;
 
 typedef struct {       // Repeaterlist
-  const char *name;    // Repeatername
-  const char *city;    // Repeatercity
+  char *name;    // Repeatername
+  char *city;    // Repeatercity
   int8_t shift;        // Shift + or -
   uint16_t channel;    // RX Freq channel (12.5KHz steps, 144.000MHz = 0, channel 128 is 145.600MHz)
   uint16_t ctcssTone;  // See list of CTCSS codes in config.h
@@ -709,8 +712,9 @@ void loop() {
     aprsGatewayRefreshed = millis();
   }
 
-  if ((millis() - webRefresh) > 2000) {
+  if ((millis() - webRefresh) > 1000) { 
     RefreshWebPage();
+    webRefresh = millis();
   }
 
   if (actualPage == debugPage && millis() - startedDebugScreen > 3000) {
@@ -784,7 +788,6 @@ bool CheckAndSetPTT(bool isAPRS) {
       DrawButton("MOX");
       DrawFrequency(isAPRS);
       delay(10);
-      RefreshWebPage();
     }
   }
   return retVal;
@@ -1122,7 +1125,6 @@ void DrawMeter(int xPos, int yPos, int width, int height, int value, bool isTX, 
     if (i > value * 4) signColor = TFT_BLACK;
     tft.fillRect(xPos + 20 + (i * 5), yPos + 12, 4, 7, signColor);
   }
-  RefreshWebPage();
 }
 
 /***************************************************************************************
@@ -2225,7 +2227,6 @@ void RefreshWebPage() {
     sprintf(buf, "%d", swr);
     events.send(buf, "SWRINFO", millis());
   }
-  webRefresh = millis();
 }
 
 void ClearButtons() {
@@ -2330,9 +2331,16 @@ String Processor(const String &var) {
     if (i + 1 < (sizeof(buttons) / sizeof(buttons[0]))) {
       Button button = FindButtonInfo(buttons[i]);
       if ((button.pageNo < lastPage || button.pageNo == BTN_ARROW) && button.name != "MOX") {
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s; border:solid; border-radius: 2em; background-image: linear-gradient(%s)\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue", String(button.name) == FindButtonNameByID(activeBtn) ? "white, #6781F1" : "#6781F1, #ADD8E6", button.name, button.caption, button.bottomColor == TFT_RED ? "red" : button.bottomColor == TFT_GREEN ? "green"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          : "blue",
-                button.name, button.waarde);
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s; border:solid; border-radius: 1em; background-image: linear-gradient(%s)\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", 
+          button.name, 
+          String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue", 
+          String(button.name) == FindButtonNameByID(activeBtn) ? "white, #6781F1" : "#6781F1, #ADD8E6", 
+          button.name, 
+          button.caption, 
+          button.bottomColor == TFT_RED ? "red" : button.bottomColor == TFT_GREEN ? "green": "blue",
+          button.name, 
+          button.waarde
+          );
       }
       char buf2[10];
       sprintf(buf2, "%%BUTTONS%d%%", i + 1);
@@ -2347,7 +2355,13 @@ String Processor(const String &var) {
     if (i + 1 < (sizeof(buttons) / sizeof(buttons[0]))) {
       Button button = FindButtonInfo(buttons[i]);
       if (button.pageNo == BTN_NUMERIC) {
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"border:solid; border-radius: 2em; background-image: linear-gradient(%s)\"><p>%s</p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", button.name, "#6781F1, blue", button.caption, "blue", button.name, button.waarde);
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"border:solid; border-color: black; border-radius: 1em; background-image: linear-gradient(%s)\"><p>%s</p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", 
+          button.name, 
+          "#6781F1, blue", 
+          button.caption, 
+          "blue", 
+          button.name, 
+          button.waarde);
       }
       char buf2[10];
       sprintf(buf2, "%%NUMMERS%d%%", i + 1);

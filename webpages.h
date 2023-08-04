@@ -9,38 +9,35 @@ const char index_html[] PROGMEM = R"rawliteral(
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-  <div class="topnav">
+  <div class="freqinfo" style="border:solid; border-radius: 1em; border-color: black; background-image: linear-gradient(blue, black); text-align:center">
+    <div class="topnav">
     <h1>APRS Radio Server</h1>
-  </div>
-  <hr>
-  <div class="divinfo">
-    <table class="fwidth">  
-        <tr>
-            <td>
-              <h4 style="text-align:left;color:lightblue"><span id="APRSINFO">%APRSINFO%</span></h4>
-              <h4 style="text-align:left;color:orange"><span id="GPSINFO">%GPSINFO%</span></h4>
-              <h4 style="text-align:left;color:red"><span id="BEACONINFO">%BEACONINFO%</span></h4>
-            </td>
-            <td style="text-align: right;">
-                <meter id="s-meter"
-                    min="0" max="14"
-                    low="7" high="14" 
-                    value="5" style="width:200px">
-                </meter>
-            </td>
-        </tr>
-    </table>
-  </div>
-  <hr>
+    </div>
 
-  <div class="freqinfo">
-    <h1><span id="RXFREQ">%RXFREQ%</span></h1>
-  </div>
-  <div class="divinfo">    
-    <h4 style="text-align:center;color:yellow""><span id="REPEATERINFO">%REPEATERINFO%</span>&nbsp<span id="TXFREQ">%TXFREQ%</span></h4>
+      <div class="row">
+        <div style="line-height:10px" class="col-md-6 text-center">
+          <h6 style="text-align:left;color:white"><span id="APRSINFO">%APRSINFO%</span></h6>
+          <h6 style="text-align:left;color:white"><span id="GPSINFO">%GPSINFO%</span></h6>
+          <h6 style="text-align:left;color:red"><span id="BEACONINFO">%BEACONINFO</span>%&nbsp</h6>
+        </div>
+        <div class="col-md-6, align-middle">
+        <br>
+          <meter id="s-meter"
+            min="0" max="14"
+            low="7" high="14" 
+            value="5" style="width:200px">
+          </meter>
+        </div>
+      </div>
+
+    <div class="freqinfo">
+      <h1><span id="RXFREQ">%RXFREQ%</span></h1>
+    </div>
+    <div class="divinfo">    
+      <h4 style="text-align:center;color:yellow; margin-bottom: 1.0em;"><span id="REPEATERINFO">%REPEATERINFO%</span>&nbsp<span id="TXFREQ">%TXFREQ%</span></h4>
+    </div>
   </div>
 
-  <hr>
   <div class="content">
     <div class="cards">
       %BUTTONS0%
@@ -52,7 +49,7 @@ const char index_html[] PROGMEM = R"rawliteral(
       <tbody>
         <tr>
           <td style="text-align:left">
-            <h4>Copyright (c) Robert de Kok, PA2RDK</h4>
+            <h6><small>Copyright (c) Robert de Kok, PA2RDK</small></h6>
           </td>
           <td style="text-align:right">
             <a href="/settings"><button>Settings</button></a>
@@ -157,15 +154,15 @@ const char nummers_html[] PROGMEM = R"rawliteral(
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-  <div class="topnav">
-    <h1>APRS Radio Server</h1>
-  </div>
-  <hr>
-    <div class="freqinfo">
-      <h1><span id="RXFREQ"><input class="freqdisp" readonly type="text" placeholder="Type " id="inputFreq" value="%KEYBFREQ%"></span></h1>
+
+  <div class="freqinfo" style="border:solid; border-radius: 1em; border-color: black; background-image: linear-gradient(blue, black); text-align:center">
+    <div class="topnav">
+      <h1>APRS Radio Server</h1>
     </div>
-  <hr>  
-  <hr>
+    <div class="freqinfo">
+      <h4 style="text-align:center;color:yellow""><span id="RXFREQ"><input class="freqdisp" readonly type="text" placeholder="Type " id="inputFreq" value="%KEYBFREQ%"></span></h4>
+    </div>
+  </div>
   <div class="divinfo">
     <form action="/numbers" method="get">
 
@@ -183,7 +180,7 @@ const char nummers_html[] PROGMEM = R"rawliteral(
       <tbody>
       <tr>
           <td style="text-align:left">
-          <h4>Copyright (c) Robert de Kok, PA2RDK</h4>
+          <h6><small>Copyright (c) Robert de Kok, PA2RDK</small></h6>
           </td>
           <td style="text-align:right">
             <a href="/"><button>Main</button></a>
@@ -289,23 +286,24 @@ const char repeaters_html[] PROGMEM = R"rawliteral(
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-  <div class="topnav">
-    <h1>APRS Radio Server</h1>
-  </div>
-  <hr>
+    <div class="freqinfo" style="border:solid; border-radius: 1em; border-color: black; background-image: linear-gradient(blue, black); text-align:center">
+    <div class="topnav">
+      <h1>APRS Radio Server</h1>
+    </div>
     <div class="freqinfo">
+      <h4 style="text-align:center;color:yellow;margin-top: 1.5em;margin-bottom: 1.5em;"><span id="RXFREQ">Select repeater</span></h4>
       <select id="repeaters" onChange="selectRepeater()">
         %REPEATERS0%
       </select>
     </div>
-
+  </div>
   <hr>  
   <div class="topnav" style="background-color: lightblue; ">
   <table class="fwidth">
       <tbody>
       <tr>
           <td style="text-align:left">
-          <h4>Copyright (c) Robert de Kok, PA2RDK</h4>
+          <h6><small>Copyright (c) Robert de Kok, PA2RDK</small></h6>
           </td>
           <td style="text-align:right">
             <a href="/"><button>Main</button></a>
@@ -346,12 +344,15 @@ const char settings_html[] PROGMEM = R"rawliteral(
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-  <div class="topnav">
-    <h1>APRS Radio Server</h1>
-    <br>
-    <h2>Settings</h2>
+  <div class="freqinfo" style="border:solid; border-radius: 1em; border-color: black; background-image: linear-gradient(blue, black); text-align:center">
+    <div class="topnav">
+      <h1>APRS Radio Server</h1>
+    </div>
+    <div class="freqinfo">
+      <h4 style="text-align:center;color:yellow;margin-top: 1.5em;margin-bottom: 1.5em;"><span>Settings</span></h4>
+    </div>
   </div>
-  <hr>
+
   <div class="divinfo">
     <form action="/store" method="get">
 
@@ -786,7 +787,7 @@ const char settings_html[] PROGMEM = R"rawliteral(
     <table class="fwidth">
         <tr>
           <td class="hwidth" style="text-align:left">
-            <h4>Copyright (c) Robert de Kok, PA2RDK</h4>
+            <h6><small>Copyright (c) Robert de Kok, PA2RDK</small></h6>
           </td>
           <td style="text-align:right">
             <a href="/"><button>Main</button></a>
@@ -838,11 +839,10 @@ body {
 
 .freqdisp {
     border: none;
-    background-color: gray;
     color: yellow;
     font-size: xx-large;
-    border-bottom: 1px solid gray;
     text-align: center;
+    background: transparent;
 }
 
 .topnav { 
@@ -853,16 +853,13 @@ body {
     line-height: 0%;
 }
 .divinfo { 	
-    overflow: hidden; 
-    background-color: gray; 
+    overflow: hidden;  
     color: white; 
     font-size: 0.7rem; 
-    height:100;
     line-height: 0%;
 }
 .freqinfo { 	
     overflow: hidden; 
-    background-color: gray;
     color: yellow; 
     font-size: 1rem; 
     line-height: 0%;
@@ -885,6 +882,26 @@ body {
 .reading { 
     font-size: 1.4rem;  
 }
+h6 { 
+  font-size: 0.7em;
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  margin-left: 0;
+  margin-right: 0;
+  font-weight: bold;
+}
+h4 { 
+  margin-top: 0.4em;
+  margin-bottom: 0.6em;
+  margin-left: 0;
+  margin-right: 0;
+}
+h1 { 
+  font-size:32px;
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+  margin-left: 0;
+  margin-right: 0;
 })rawliteral";
 
 
