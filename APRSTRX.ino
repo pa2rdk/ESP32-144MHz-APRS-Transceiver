@@ -268,7 +268,7 @@ uint8_t activeBtn = -1;
 String commandButton = "";
 long activeBtnStart = millis();
 long lastBeacon = millis();
-long lastDRARead = millis();
+long lastGetDraRSSI = millis();
 int actualPage = 1;
 int lastPage = 8;
 int beforeDebugPage = 0;
@@ -358,8 +358,7 @@ void setup() {
   // add Wi-Fi networks from All_Settings.h
   for (int i = 0; i < sizeof(wifiNetworks) / sizeof(wifiNetworks[0]); i++) {
     wifiMulti.addAP(wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
-    Serial.printf("Wifi:%s, Pass:%s.", wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
-    Serial.println();
+    Serial.printf("Wifi:%s, Pass:%s.\r\n", wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
   }
 
   DrawButton(80, 80, 160, 30, "Connecting to WiFi", "", TFT_BLACK, TFT_WHITE, "");
@@ -386,8 +385,7 @@ void setup() {
 
   // show connected SSID
   wifiMulti.addAP(settings.wifiSSID, settings.wifiPass);
-  Serial.printf("Wifi:%s, Pass:%s.", settings.wifiSSID, settings.wifiPass);
-  Serial.println();
+  Serial.printf("Wifi:%s, Pass:%s.\r\n", settings.wifiSSID, settings.wifiPass);
   if (Connect2WiFi()) {
     wifiAvailable = true;
     DrawButton(80, 80, 160, 30, "Connected to WiFi", WiFi.SSID(), TFT_BLACK, TFT_WHITE, "");
@@ -399,25 +397,39 @@ void setup() {
     WiFi.mode(WIFI_AP);
     WiFi.softAP("APRSTRX", NULL);
   }
+  Serial.printf("Main loop running in Core:%d.\r\n", xPortGetCoreID());
 
   ledcWrite(ledChannelforTFT, 256 - (settings.currentBrightness * 2.56));
   digitalWrite(HIPOWERPIN, !settings.draPower);  // low power from DRA
   delay(25);
   SetFreq(0, 0, 0, false);
   delay(100);
-  ReadDRAPort();
   SetFreq(0, 0, 0, false);
   delay(100);
-  ReadDRAPort();
   SetDraVolume(settings.volume);
   delay(100);
-  ReadDRAPort();
   SetDraSettings();
   delay(100);
-  ReadDRAPort();
   APRS_init(ADC_REFERENCE, OPEN_SQUELCH);
   SetAPRSParameters();
 
+  xTaskCreatePinnedToCore(
+    ReadTask
+    ,  "ReadTask"    // A name just for humans
+    ,  10000             // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,  NULL
+    ,  0                // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+    ,  NULL
+    ,  0 );             // Core 0
+
+  esp_task_wdt_init(WDT_TIMEOUT, true);  //enable panic so ESP32 restarts
+  esp_task_wdt_add(NULL);                //add current thread to WDT watch
+
+  DrawScreen();
+}
+
+void ReadTask(void *pvParameters)  // This is a task.
+{
   if (wifiAvailable || wifiAPMode) {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
       request->send_P(200, "text/html", index_html, Processor);
@@ -481,13 +493,15 @@ void setup() {
 
     server.begin();
     Serial.println("HTTP server started");
+    Serial.printf("HTTP server running in Core:%d.\r\n", xPortGetCoreID());
   }
 
-
-  esp_task_wdt_init(WDT_TIMEOUT, true);  //enable panic so ESP32 restarts
-  esp_task_wdt_add(NULL);                //add current thread to WDT watch
-
-  DrawScreen();
+  for (;;) // A Task shall never return or exit.
+  {
+    ReadDRAPort();
+    readGPSData();
+    vTaskDelay( 50 / portTICK_PERIOD_MS ); // wait for 50 miliSec
+  }
 }
 
 void SetAPRSParameters() {
@@ -640,12 +654,7 @@ void loop() {
     lastMinute = minute();
   }
 
-  if (GPSSerial.available()) {
-    while (GPSSerial.available()) {
-      gps.encode(GPSSerial.read());
-    }
-    //Serial.println("GPS Data received");
-  }
+  //readGPSData();
 
   if (millis() - gpsTime > 1000) {
     gpsTime = millis();
@@ -653,10 +662,9 @@ void loop() {
   }
 
   if (!isPTT) {
-    ReadDRAPort();
-    if (millis() - lastDRARead > 250) {
+    if (millis() - lastGetDraRSSI > 250) {
       GetDraRSSI();
-      lastDRARead = millis();
+      lastGetDraRSSI = millis();
     }
     if (oldSwr != swr) {
       oldSwr = swr;
@@ -1952,8 +1960,6 @@ void ReadDRAPort() {
     draBuffer[draBufferLength++] = draChar;
     if (draChar == 0xA) {
       draBuffer[draBufferLength++] = '\0';
-      // Serial.print("DRAData:");
-      // Serial.println(draBuffer);
       if (strcmp(draBuffer, "RSSI")) {
         swr = (atoi(&draBuffer[5]));
         //swr = swr - 24;
@@ -1970,6 +1976,15 @@ void ReadDRAPort() {
       draBufferLength = 0;
       endLine = true;
     }
+  }
+}
+
+void readGPSData(){
+  if (GPSSerial.available()) {
+    while (GPSSerial.available()) {
+      gps.encode(GPSSerial.read());
+    }
+    //Serial.println("GPS Data received");
   }
 }
 
