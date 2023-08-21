@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+// V2.1 RS232 Read tasks replaced to second task (on other core)
 // V2.0 GPS and DRA separated
 //      GPS is connected to pin 39 (only RX)
 //      DRA is connected to 16 (RX) and 17 (TX)
