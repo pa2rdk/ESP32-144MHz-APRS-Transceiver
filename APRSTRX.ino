@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+// V2.2 Added a switch to enable/disable serial debugging
 // V2.1 RS232 Read tasks replaced to second task (on other core)
 // V2.0 GPS and DRA separated
 //      GPS is connected to pin 39 (only RX)
@@ -102,6 +103,16 @@
 #define TONETYPETX 2
 #define TONETYPERXTX 3
 
+// #define DebugEnabled
+#ifdef DebugEnabled
+#define DebugPrint(x)         Serial.print(x)
+#define DebugPrintln(x)       Serial.println(x)
+#define DebugPrintf(x, ...)   Serial.printf(x, __VA_ARGS__)
+#else
+#define DebugPrint(x)  
+#define DebugPrintln(x)
+#define DebugPrintf(x, ...)
+#endif
 typedef struct {  // WiFi Access
   const char *SSID;
   const char *PASSWORD;
@@ -359,20 +370,20 @@ void setup() {
   // add Wi-Fi networks from All_Settings.h
   for (int i = 0; i < sizeof(wifiNetworks) / sizeof(wifiNetworks[0]); i++) {
     wifiMulti.addAP(wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
-    Serial.printf("Wifi:%s, Pass:%s.\r\n", wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
+    DebugPrintf("Wifi:%s, Pass:%s.\r\n", wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
   }
 
   DrawButton(80, 80, 160, 30, "Connecting to WiFi", "", TFT_BLACK, TFT_WHITE, "");
 
   if (!EEPROM.begin(EEPROM_SIZE)) {
     DrawButton(80, 120, 160, 30, "EEPROM Failed", "", TFT_BLACK, TFT_WHITE, "");
-    Serial.println("failed to initialise EEPROM");
+    DebugPrintln("failed to initialise EEPROM");
     while (1)
       ;
   }
 
   if (!LoadConfig()) {
-    Serial.println(F("Writing defaults"));
+    DebugPrintln(F("Writing defaults"));
     SaveConfig();
     Memory myMemory = { 0, 0, 0, 0, 0, 0 };
     for (int x = 0; x < 10; x++) {
@@ -386,7 +397,7 @@ void setup() {
 
   // show connected SSID
   wifiMulti.addAP(settings.wifiSSID, settings.wifiPass);
-  Serial.printf("Wifi:%s, Pass:%s.\r\n", settings.wifiSSID, settings.wifiPass);
+  DebugPrintf("Wifi:%s, Pass:%s.\r\n", settings.wifiSSID, settings.wifiPass);
   if (Connect2WiFi()) {
     wifiAvailable = true;
     DrawButton(80, 80, 160, 30, "Connected to WiFi", WiFi.SSID(), TFT_BLACK, TFT_WHITE, "");
@@ -398,7 +409,7 @@ void setup() {
     WiFi.mode(WIFI_AP);
     WiFi.softAP("APRSTRX", NULL);
   }
-  Serial.printf("Main loop running in Core:%d.\r\n", xPortGetCoreID());
+  DebugPrintf("Main loop running in Core:%d.\r\n", xPortGetCoreID());
 
   ledcWrite(ledChannelforTFT, 256 - (settings.currentBrightness * 2.56));
   digitalWrite(HIPOWERPIN, !settings.draPower);  // low power from DRA
@@ -447,7 +458,7 @@ void ReadTask(void *pvParameters)  // This is a task.
         dirtyScreen = true;
       }
       if (request->hasParam("setrepeater")) {
-        Serial.println(request->getParam("setrepeater")->value());
+        DebugPrintln(request->getParam("setrepeater")->value());
         uint8_t i = request->getParam("setrepeater")->value().toInt();
         if (i > -1) {
           settings.repeater = i;
@@ -484,17 +495,17 @@ void ReadTask(void *pvParameters)  // This is a task.
     });
 
     events.onConnect([](AsyncEventSourceClient *client) {
-      Serial.println("Connect web");
+      DebugPrintln("Connect web");
       if (client->lastId()) {
-        Serial.printf("Client reconnected! Last message ID that it got is: %u\n", client->lastId());
+        DebugPrintf("Client reconnected! Last message ID that it got is: %u\n", client->lastId());
       }
       client->send("hello!", NULL, millis(), 10000);
     });
     server.addHandler(&events);
 
     server.begin();
-    Serial.println("HTTP server started");
-    Serial.printf("HTTP server running in Core:%d.\r\n", xPortGetCoreID());
+    DebugPrintln("HTTP server started");
+    DebugPrintf("HTTP server running in Core:%d.\r\n", xPortGetCoreID());
   }
 
   for (;;) // A Task shall never return or exit.
@@ -527,13 +538,13 @@ void SetAPRSParameters() {
 
 bool Connect2WiFi() {
   startTime = millis();
-  Serial.print("Connect to Multi WiFi");
+  DebugPrint("Connect to Multi WiFi");
   while (wifiMulti.run() != WL_CONNECTED && millis() - startTime < 30000) {
     esp_task_wdt_reset();
     delay(1000);
-    Serial.print(".");
+    DebugPrint(".");
   }
-  Serial.println();
+  DebugPrintln();
   return (WiFi.status() == WL_CONNECTED);
 }
 
@@ -588,8 +599,8 @@ void loop() {
       for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
         if ((buttons[i].pageNo & showVal) > 0) {
           if (x >= buttons[i].xPos && x <= buttons[i].xPos + buttons[i].width && y >= buttons[i].yPos && y <= buttons[i].yPos + buttons[i].height) {
-            Serial.print(buttons[i].name);
-            Serial.print(" pressed:");
+            DebugPrint(buttons[i].name);
+            DebugPrint(" pressed:");
             HandleFunction(buttons[i], x, y);
           }
         }
@@ -737,20 +748,20 @@ void processPacket() {
   if (gotPacket) {
     gotPacket = false;
 
-    Serial.print(F("Received APRS packet. SRC: "));
-    Serial.print(incomingPacket.src.call);
-    Serial.print(F("-"));
-    Serial.print(incomingPacket.src.ssid);
-    Serial.print(F(". DST: "));
-    Serial.print(incomingPacket.dst.call);
-    Serial.print(F("-"));
-    Serial.print(incomingPacket.dst.ssid);
-    Serial.print(F(". Data: "));
+    DebugPrint(F("Received APRS packet. SRC: "));
+    DebugPrint(incomingPacket.src.call);
+    DebugPrint(F("-"));
+    DebugPrint(incomingPacket.src.ssid);
+    DebugPrint(F(". DST: "));
+    DebugPrint(incomingPacket.dst.call);
+    DebugPrint(F("-"));
+    DebugPrint(incomingPacket.dst.ssid);
+    DebugPrint(F(". Data: "));
 
     for (int i = 0; i < incomingPacket.len; i++) {
       Serial.write(incomingPacket.info[i]);
     }
-    Serial.println("");
+    DebugPrintln("");
 
     // Remeber to free memory for our buffer!
     free(packetData);
@@ -758,7 +769,7 @@ void processPacket() {
     // You can print out the amount of free
     // RAM to check you don't have any memory
     // leaks
-    // Serial.print(F("Free RAM: ")); Serial.println(freeMemory());
+    // DebugPrint(F("Free RAM: ")); DebugPrintln(freeMemory());
   }
 }
 
@@ -787,7 +798,7 @@ bool CheckAndSetPTT(bool isAPRS) {
     if (isPTTIN && isMOX) isMOX = false;
     if (lastPTT != isPTT && (!settings.isUHF || isAPRS)) {
       digitalWrite(MUTEPIN, isPTT ? true : isMuted);
-      Serial.println("PTT=" + isPTT ? "True" : "False");
+      DebugPrintln("PTT=" + isPTT ? "True" : "False");
       lastPTT = isPTT;
       if (!isPTT && !isAPRS) retVal = true;
       digitalWrite(PTTOUT, isPTT);
@@ -802,7 +813,7 @@ bool CheckAndSetPTT(bool isAPRS) {
 **            APRS Call back - received package
 ***************************************************************************************/
 void aprs_msg_callback(struct AX25Msg *msg) {
-  Serial.println("APRS packet received");
+  DebugPrintln("APRS packet received");
   // If we already have a packet waiting to be
   // processed, we must drop the new one.
   if (!gotPacket) {
@@ -838,7 +849,7 @@ void SendBeacon(bool manual, bool afterTX) {
 
 void SendBeaconViaRadio() {
   if (!isPTT) {
-    Serial.printf("Mutestate is %s", digitalRead(MUTEPIN) ? "True" : "False");
+    DebugPrintf("Mutestate is %s", digitalRead(MUTEPIN) ? "True" : "False");
     buf[0] = '\0';
     sprintf(buf, "Send APRS beacon via radio");
     events.send(buf, "BEACONINFO", millis());
@@ -1006,7 +1017,7 @@ void DrawKeyboardNumber(bool doReset) {
 
 void DrawDebugInfo(char debugInfo[]) {
   if (beforeDebugPage > 0) tft.drawString(debugInfo, 2, 25 + (debugLine * 8), 1);
-  Serial.println(debugInfo);
+  DebugPrintln(debugInfo);
   debugLine++;
 }
 /***************************************************************************************
@@ -1696,7 +1707,7 @@ void HandleFunction(Button button, int x, int y, bool doDraw) {
     actualPage = BTN_NUMERIC;
     if (doDraw) DrawScreen();
 
-    // Serial.println("SaveButton");
+    // DebugPrintln("SaveButton");
     // Memory myMemory = {settings.rxChannel, settings.txChannel, settings.repeater, settings.txShift, settings.hasTone, settings.ctcssTone};
     // memories[settings.memoryChannel] = myMemory;
     // SetMemory(settings.memoryChannel);
@@ -1708,11 +1719,11 @@ void HandleFunction(Button button, int x, int y, bool doDraw) {
   }
 
   if (button.name == "Print") {
-    Serial.println("Printing");
+    DebugPrintln("Printing");
     for (int i = 0; i < 10; i++) {
       SFreq rxSFreq = GetFreq(memories[i].rxChannel);
       SFreq txSFreq = GetFreq(memories[i].txChannel);
-      Serial.printf("Memory %d is RX %01d.%04d and TX %01d.%04d with ctcss %d\r\n", i, rxSFreq.fMHz, rxSFreq.fKHz, txSFreq.fMHz, txSFreq.fKHz, memories[i].ctcssTone);
+      DebugPrintf("Memory %d is RX %01d.%04d and TX %01d.%04d with ctcss %d\r\n", i, rxSFreq.fMHz, rxSFreq.fKHz, txSFreq.fMHz, txSFreq.fKHz, memories[i].ctcssTone);
     }
   }
 
@@ -1757,7 +1768,7 @@ void HandleFunction(Button button, int x, int y, bool doDraw) {
       SetMemory(settings.memoryChannel);
     }
     if (activeBtn == FindButtonIDByName("Save")) {
-      Serial.println("SaveButton");
+      DebugPrintln("SaveButton");
       Memory myMemory = { settings.rxChannel, settings.txChannel, settings.repeater, settings.txShift, settings.hasTone, settings.ctcssTone };
       settings.memoryChannel = keyboardNumber;
       memories[settings.memoryChannel] = myMemory;
@@ -1809,21 +1820,21 @@ void TouchCalibrate() {
 
   tft.calibrateTouch(calData, TFT_MAGENTA, TFT_BLACK, 15);
 
-  Serial.println();
-  Serial.println();
-  Serial.println("// Use this calibration code in setup():");
-  Serial.print("  uint16_t calData[5] = ");
-  Serial.print("{ ");
+  DebugPrintln();
+  DebugPrintln();
+  DebugPrintln("// Use this calibration code in setup():");
+  DebugPrint("  uint16_t calData[5] = ");
+  DebugPrint("{ ");
 
   for (uint8_t i = 0; i < 5; i++) {
-    Serial.print(calData[i]);
-    if (i < 4) Serial.print(", ");
+    DebugPrint(calData[i]);
+    if (i < 4) DebugPrint(", ");
   }
 
-  Serial.println(" };");
-  Serial.print("  tft.setTouch(calData);");
-  Serial.println();
-  Serial.println();
+  DebugPrintln(" };");
+  DebugPrint("  tft.setTouch(calData);");
+  DebugPrintln();
+  DebugPrintln();
 
   tft.fillScreen(TFT_BLACK);
 
@@ -1920,8 +1931,8 @@ void SetDra(uint16_t rxFreq, uint16_t txFreq, byte rxTone, byte txTone, byte squ
   SFreq txSFreq = GetFreq(isReverse ? rxFreq : txFreq);
   sprintf(buf, "AT+DMOSETGROUP=0,%01d.%04d,%01d.%04d,%04d,%01d,%04d", txSFreq.fMHz, txSFreq.fKHz, rxSFreq.fMHz, rxSFreq.fKHz, txTone, squelsh, rxTone);
   for (int x = 0; x < settings.repeatSetDRA; x++) {
-    Serial.println();
-    Serial.println(buf);
+    DebugPrintln();
+    DebugPrintln(buf);
     DRASerial.println(buf);
   }
 }
@@ -1930,8 +1941,8 @@ void SetDraVolume(byte volume) {
   isMuted = volume > 0 ? false : true;
   digitalWrite(MUTEPIN, isMuted);
   sprintf(buf, "AT+DMOSETVOLUME=%01d", volume);
-  Serial.println();
-  Serial.println(buf);
+  DebugPrintln();
+  DebugPrintln(buf);
   DRASerial.println(buf);
 }
 
@@ -1942,15 +1953,15 @@ void GetDraRSSI() {
 
 void SetDraSettings() {
   sprintf(buf, "AT+SETFILTER=%01d,%01d,%01d", settings.preEmphase, settings.highPass, settings.lowPass);
-  Serial.println();
-  Serial.print("Filter:");
-  Serial.println(buf);
+  DebugPrintln();
+  DebugPrint("Filter:");
+  DebugPrintln(buf);
   DRASerial.println(buf);
 
   // sprintf(buf, "AT+DMOSETMIC=%01d,0", settings.mikeLevel);
-  // Serial.println();
-  // Serial.print("Mikelevel:");
-  // Serial.println(buf);
+  // DebugPrintln();
+  // DebugPrint("Mikelevel:");
+  // DebugPrintln(buf);
   // DRASerial.println(buf);
 }
 
@@ -1971,7 +1982,7 @@ void ReadDRAPort() {
         }
         if (swr > 14) swr = 14;
         if (squelshClosed && swr > 2) swr = 2;
-        //Serial.printf("SWR=%d\r\n",swr);
+        //DebugPrintf("SWR=%d\r\n",swr);
       }
       draBuffer[0] = '\0';
       draBufferLength = 0;
@@ -1985,7 +1996,7 @@ void readGPSData(){
     while (GPSSerial.available()) {
       gps.encode(GPSSerial.read());
     }
-    //Serial.println("GPS Data received");
+    //DebugPrintln("GPS Data received");
   }
 }
 
@@ -2064,7 +2075,7 @@ bool LoadConfig() {
     for (unsigned int t = 0; t < sizeof(settings); t++)
       *((char *)&settings + t) = EEPROM.read(offsetEEPROM + t);
   } else retVal = false;
-  Serial.println("Configuration:" + retVal ? "Loaded" : "Not loaded");
+  DebugPrintln("Configuration:" + retVal ? "Loaded" : "Not loaded");
   return retVal;
 }
 
@@ -2072,7 +2083,7 @@ bool SaveMemories() {
   for (unsigned int t = 0; t < sizeof(memories); t++)
     EEPROM.write(offsetEEPROM + sizeof(settings) + 10 + t, *((char *)&memories + t));
   EEPROM.commit();
-  Serial.println("Memories:saved");
+  DebugPrintln("Memories:saved");
   return true;
 }
 
@@ -2080,7 +2091,7 @@ bool LoadMemories() {
   bool retVal = true;
   for (unsigned int t = 0; t < sizeof(memories); t++)
     *((char *)&memories + t) = EEPROM.read(offsetEEPROM + sizeof(settings) + 10 + t);
-  Serial.println("Memories:" + retVal ? "Loaded" : "Not loaded");
+  DebugPrintln("Memories:" + retVal ? "Loaded" : "Not loaded");
   return retVal;
 }
 /***************************************************************************************
@@ -2093,7 +2104,7 @@ bool APRSGatewayConnect() {
   if (wifiAvailable && (WiFi.status() != WL_CONNECTED)) {
     aprsGatewayConnected = false;
     if (!Connect2WiFi()) wifiAvailable = false;
-  } else Serial.println("WiFi available and WiFiStatus connected");
+  } else DebugPrintln("WiFi available and WiFiStatus connected");
   if (wifiAvailable) {
     if (!aprsGatewayConnected) {
       DrawDebugInfo("Connecting to APRS server...");
@@ -2156,12 +2167,12 @@ bool ReadHTTPNet() {
     }
     retVal = true;
     httpBuf[i++] = '\0';
-    // Serial.print("Read from HTTP:");
-    // Serial.print(httpBuf);
+    // DebugPrint("Read from HTTP:");
+    // DebugPrint(httpBuf);
   } else {
-    Serial.print("No data returned from HTTP");
+    DebugPrint("No data returned from HTTP");
   }
-  Serial.println();
+  DebugPrintln();
   return retVal;
 }
 
@@ -2378,7 +2389,7 @@ String Processor(const String &var) {
       }
       char buf2[10];
       sprintf(buf2, "%%NUMMERS%d%%", i + 1);
-      //Serial.println(buf);
+      //DebugPrintln(buf);
       strcat(buf, buf2);
     }
     return buf;
