@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+// V2.3 Removed delay from loop
 // V2.2 Added a switch to enable/disable serial debugging
 // V2.1 RS232 Read tasks replaced to second task (on other core)
 // V2.0 GPS and DRA separated
@@ -103,7 +104,7 @@
 #define TONETYPETX 2
 #define TONETYPERXTX 3
 
-// #define DebugEnabled
+//#define DebugEnabled
 #ifdef DebugEnabled
 #define DebugPrint(x)         Serial.print(x)
 #define DebugPrintln(x)       Serial.println(x)
@@ -280,6 +281,7 @@ uint8_t activeBtn = -1;
 String commandButton = "";
 long activeBtnStart = millis();
 long lastBeacon = millis();
+long loopDelay = millis();
 long lastGetDraRSSI = millis();
 int actualPage = 1;
 int lastPage = 8;
@@ -553,42 +555,46 @@ bool Connect2WiFi() {
 ***************************************************************************************/
 void loop() {
   esp_task_wdt_reset();
-  delay(10);
+  //delay(10);
 
-  if (commandButton > "") {
-    if (commandButton == "ToLeft" || commandButton == "ToRight") {
-      HandleFunction(commandButton, -1, 0);
-    } else {
-      HandleFunction(commandButton, false);
-    }
-    commandButton = "";
-    ClearButtons();
-  }
+  if (millis() - loopDelay > 50) {
+    loopDelay = millis();
 
-  if (scanMode == SCAN_INPROCES && millis() - scanCheck > 100) {
-    if (settings.freqType == FindButtonIDByName("Freq")) {
-      settings.rxChannel++;
-      if (!settings.isUHF && settings.rxChannel == settings.maxChannel) settings.rxChannel = 0;
-      if (settings.isUHF && settings.rxChannel == settings.maxUHFChannel) settings.rxChannel = settings.minUHFChannel;
-      SetFreq(0, settings.rxChannel, 0, false);
+    if (commandButton > "") {
+      if (commandButton == "ToLeft" || commandButton == "ToRight") {
+        HandleFunction(commandButton, -1, 0);
+      } else {
+        HandleFunction(commandButton, false);
+      }
+      commandButton = "";
+      ClearButtons();
     }
-    if (settings.freqType == FindButtonIDByName("RPT")) {
-      if (settings.repeater < (sizeof(repeaters) / sizeof(repeaters[0])) - 1) settings.repeater++;
-      else settings.repeater = 1;
-      SetRepeater(settings.repeater);
-      DrawButton("RPT");
+
+    if (scanMode == SCAN_INPROCES && millis() - scanCheck > 100) {
+      if (settings.freqType == FindButtonIDByName("Freq")) {
+        settings.rxChannel++;
+        if (!settings.isUHF && settings.rxChannel == settings.maxChannel) settings.rxChannel = 0;
+        if (settings.isUHF && settings.rxChannel == settings.maxUHFChannel) settings.rxChannel = settings.minUHFChannel;
+        SetFreq(0, settings.rxChannel, 0, false);
+      }
+      if (settings.freqType == FindButtonIDByName("RPT")) {
+        if (settings.repeater < (sizeof(repeaters) / sizeof(repeaters[0])) - 1) settings.repeater++;
+        else settings.repeater = 1;
+        SetRepeater(settings.repeater);
+        DrawButton("RPT");
+      }
+      if (settings.freqType == FindButtonIDByName("MEM")) {
+        if (settings.memoryChannel < 9) settings.memoryChannel++;
+        else settings.memoryChannel = 0;
+        SetMemory(settings.memoryChannel);
+        DrawButton("MEM");
+      }
+      DrawFrequency(false, false);
+      DrawButton("Shift");
+      DrawButton("Reverse");
+      DrawButton("Tone");
+      scanCheck = millis();
     }
-    if (settings.freqType == FindButtonIDByName("MEM")) {
-      if (settings.memoryChannel < 9) settings.memoryChannel++;
-      else settings.memoryChannel = 0;
-      SetMemory(settings.memoryChannel);
-      DrawButton("MEM");
-    }
-    DrawFrequency(false, false);
-    DrawButton("Shift");
-    DrawButton("Reverse");
-    DrawButton("Tone");
-    scanCheck = millis();
   }
 
   if (millis() - lastPressed > 100) {
