@@ -105,7 +105,7 @@
 #define TONETYPETX 2
 #define TONETYPERXTX 3
 
-#define DebugEnabled
+//#define DebugEnabled
 #ifdef DebugEnabled
 #define DebugPrint(x)         Serial.print(x)
 #define DebugPrintln(x)       Serial.println(x)
@@ -558,7 +558,6 @@ bool Connect2WiFi() {
 ***************************************************************************************/
 void loop() {
   esp_task_wdt_reset();
-  //delay(10);
 
   if (millis() - loopDelay > 50) {
     loopDelay = millis();
@@ -600,13 +599,13 @@ void loop() {
     }
   }
 
-  if (millis() - lastPressed > 25) digitalWrite(BEEPPIN, 0);
-
-  if (millis() - lastPressed > 100) {
+  if (millis() - lastPressed > 200) {
     uint16_t x = 0, y = 0;
     bool pressed = tft.getTouch(&x, &y);
     if (pressed) {
       digitalWrite(BEEPPIN, 1);
+      delay(10);
+      digitalWrite(BEEPPIN, 0);
       int showVal = ShowControls();
       for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
         if ((buttons[i].pageNo & showVal) > 0) {
@@ -1679,7 +1678,6 @@ void HandleFunction(Button button, int x, int y, bool doDraw) {
   }
 
   if (button.name == "Off") {
-    digitalWrite(BEEPPIN, 0);
     isOn = false;
     actualPage = 1;
     DoTurnOff();
