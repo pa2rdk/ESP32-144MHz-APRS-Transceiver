@@ -76,7 +76,7 @@
 #define BTN_NUMERIC 1024
 
 #define RXD1 39
-#define TXD1 32
+#define TXD1 -1
 #define RXD2 16
 #define TXD2 17
 #define PTTIN 27
@@ -87,6 +87,7 @@
 #define DISPLAYLEDPIN 14
 #define HIPOWERPIN 13
 #define MUTEPIN 22
+#define BEEPPIN 32
 
 #define ADC_REFERENCE REF_3V3
 #define OPEN_SQUELCH false
@@ -104,7 +105,7 @@
 #define TONETYPETX 2
 #define TONETYPERXTX 3
 
-//#define DebugEnabled
+#define DebugEnabled
 #ifdef DebugEnabled
 #define DebugPrint(x)         Serial.print(x)
 #define DebugPrintln(x)       Serial.println(x)
@@ -351,6 +352,8 @@ void setup() {
   digitalWrite(DISPLAYLEDPIN, 0);
   pinMode(MUTEPIN, OUTPUT);
   digitalWrite(MUTEPIN, 0);
+  pinMode(BEEPPIN, OUTPUT);
+  digitalWrite(BEEPPIN, 0);
 
   pinMode(PTTIN, INPUT_PULLUP);
   pinMode(BTNSMIKEPIN, INPUT);
@@ -597,10 +600,13 @@ void loop() {
     }
   }
 
+  if (millis() - lastPressed > 25) digitalWrite(BEEPPIN, 0);
+
   if (millis() - lastPressed > 100) {
     uint16_t x = 0, y = 0;
     bool pressed = tft.getTouch(&x, &y);
     if (pressed) {
+      digitalWrite(BEEPPIN, 1);
       int showVal = ShowControls();
       for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
         if ((buttons[i].pageNo & showVal) > 0) {
@@ -1673,6 +1679,7 @@ void HandleFunction(Button button, int x, int y, bool doDraw) {
   }
 
   if (button.name == "Off") {
+    digitalWrite(BEEPPIN, 0);
     isOn = false;
     actualPage = 1;
     DoTurnOff();
