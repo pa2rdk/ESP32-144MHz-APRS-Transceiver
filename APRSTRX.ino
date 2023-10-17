@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+// V2.4 Beeper
 // V2.3 Removed delay from loop
 // V2.2 Added a switch to enable/disable serial debugging
 // V2.1 RS232 Read tasks replaced to second task (on other core)
