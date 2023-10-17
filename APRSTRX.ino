@@ -2005,6 +2005,7 @@ void ReadDRAPort() {
 void readGPSData(){
   if (GPSSerial.available()) {
     while (GPSSerial.available()) {
+      //Serial.write(GPSSerial.read());
       gps.encode(GPSSerial.read());
     }
     //DebugPrintln("GPS Data received");
