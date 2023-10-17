@@ -353,8 +353,10 @@ void setup() {
   digitalWrite(DISPLAYLEDPIN, 0);
   pinMode(MUTEPIN, OUTPUT);
   digitalWrite(MUTEPIN, 0);
-  pinMode(BEEPPIN, OUTPUT);
-  digitalWrite(BEEPPIN, 0);
+  if (BEEPPIN>-1){
+    pinMode(BEEPPIN, OUTPUT);
+    digitalWrite(BEEPPIN, 0);
+  }
 
   pinMode(PTTIN, INPUT_PULLUP);
   pinMode(BTNSMIKEPIN, INPUT);
@@ -604,9 +606,6 @@ void loop() {
     uint16_t x = 0, y = 0;
     bool pressed = tft.getTouch(&x, &y);
     if (pressed) {
-      digitalWrite(BEEPPIN, 1);
-      delay(10);
-      digitalWrite(BEEPPIN, 0);
       int showVal = ShowControls();
       for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
         if ((buttons[i].pageNo & showVal) > 0) {
@@ -1390,6 +1389,11 @@ void HandleFunction(Button button, int x, int y) {
 }
 
 void HandleFunction(Button button, int x, int y, bool doDraw) {
+  if (BEEPPIN>-1){
+    digitalWrite(BEEPPIN, 1);
+    delay(25);
+    digitalWrite(BEEPPIN, 0);
+  }
   if (button.name == "ToRight") {
     activeBtnStart = millis();
     if (activeBtn == FindButtonIDByName("Freq")) {

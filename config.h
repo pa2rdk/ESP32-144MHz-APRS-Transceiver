@@ -3,6 +3,8 @@
 const wlanSSID wifiNetworks[] {
     {"PI4RAZ","PI4RAZ_Zoetermeer"},
     {"Loretz_Gast", "Lor_Steg_98"},
+    {"Netwerk1", "Netwerk1"},
+    {"Netwerk2", "Netwerk2"},
     {"FHanna", "Kleinsteg71"}
 };
 
@@ -82,6 +84,8 @@ const CTCSSCode cTCSSCodes[] = {
     {"0037","241,8"},
     {"0038","250,3"}
 };
+
+
 
 Settings settings = {
     '%',                //chkDigit
