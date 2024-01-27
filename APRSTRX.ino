@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+// V2.5 Battery level
 // V2.4 Beeper
 // V2.3 Removed delay from loop
 // V2.2 Added a switch to enable/disable serial debugging
@@ -24,10 +25,10 @@
 //  |Display 2.8 |      ESP32       |
 //  |  ILI9341   |                  |
 //  |------------|------------------|
-//  |   Vcc      |     3V3          |  
-//  |   GND      |     GND          |  
-//  |   CS       |     15           |  
-//  |   Reset    |      4           |  
+//  |   Vcc      |     3V3          |
+//  |   GND      |     GND          |
+//  |   CS       |     15           |
+//  |   Reset    |      4           |
 //  |   D/C      |      2           |
 //  |   SDI      |     23           |
 //  |   SCK      |     18           |
@@ -54,6 +55,7 @@
 #include <ESPAsyncWebServer.h>
 #include <esp_task_wdt.h>
 #include <HardwareSerial.h>
+#include "esp_adc_cal.h"
 
 #define offsetEEPROM 32
 #define EEPROM_SIZE 2048
@@ -106,13 +108,16 @@
 #define TONETYPETX 2
 #define TONETYPERXTX 3
 
+#define LipoVoltpin 36
+#define LipoMeasureTime 10  // Lipo check every 10 seconds
+
 //#define DebugEnabled
 #ifdef DebugEnabled
-#define DebugPrint(x)         Serial.print(x)
-#define DebugPrintln(x)       Serial.println(x)
-#define DebugPrintf(x, ...)   Serial.printf(x, __VA_ARGS__)
+#define DebugPrint(x) Serial.print(x)
+#define DebugPrintln(x) Serial.println(x)
+#define DebugPrintf(x, ...) Serial.printf(x, __VA_ARGS__)
 #else
-#define DebugPrint(x)  
+#define DebugPrint(x)
 #define DebugPrintln(x)
 #define DebugPrintf(x, ...)
 #endif
@@ -266,8 +271,8 @@ typedef struct {
 } CTCSSCode;
 
 typedef struct {       // Repeaterlist
-  char *name;    // Repeatername
-  char *city;    // Repeatercity
+  char *name;          // Repeatername
+  char *city;          // Repeatercity
   int8_t shift;        // Shift + or -
   uint16_t channel;    // RX Freq channel (12.5KHz steps, 144.000MHz = 0, channel 128 is 145.600MHz)
   uint16_t ctcssTone;  // See list of CTCSS codes in config.h
@@ -299,6 +304,7 @@ long startedDebugScreen = millis();
 long aprsGatewayRefreshed = millis();
 long webRefresh = millis();
 long waitForResume = 0;
+long LipoMeasure = millis();
 bool wifiAvailable = false;
 bool wifiAPMode = false;
 bool isOn = true;
@@ -323,7 +329,7 @@ const int ledFreq = 5000;
 const int ledResol = 8;
 const int ledChannelforTFT = 0;
 
-#include "rdk_config.h";  // Change to config.h
+#include "config.h";  // Change to config.h
 
 TFT_eSPI tft = TFT_eSPI();  // Invoke custom library
 WiFiMulti wifiMulti;
@@ -353,7 +359,7 @@ void setup() {
   digitalWrite(DISPLAYLEDPIN, 0);
   pinMode(MUTEPIN, OUTPUT);
   digitalWrite(MUTEPIN, 0);
-  if (BEEPPIN>-1){
+  if (BEEPPIN > -1) {
     pinMode(BEEPPIN, OUTPUT);
     digitalWrite(BEEPPIN, 0);
   }
@@ -434,13 +440,13 @@ void setup() {
   SetAPRSParameters();
 
   xTaskCreatePinnedToCore(
-    ReadTask
-    ,  "ReadTask"    // A name just for humans
-    ,  10000             // This stack size can be checked & adjusted by reading the Stack Highwater
-    ,  NULL
-    ,  0                // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-    ,  NULL
-    ,  0 );             // Core 0
+    ReadTask, "ReadTask"  // A name just for humans
+    ,
+    10000  // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,
+    NULL, 0  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+    ,
+    NULL, 0);  // Core 0
 
   esp_task_wdt_init(WDT_TIMEOUT, true);  //enable panic so ESP32 restarts
   esp_task_wdt_add(NULL);                //add current thread to WDT watch
@@ -448,8 +454,7 @@ void setup() {
   DrawScreen();
 }
 
-void ReadTask(void *pvParameters)  // This is a task.
-{
+void ReadTask(void *pvParameters) { // This is a task.
   if (wifiAvailable || wifiAPMode) {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
       request->send_P(200, "text/html", index_html, Processor);
@@ -516,11 +521,11 @@ void ReadTask(void *pvParameters)  // This is a task.
     DebugPrintf("HTTP server running in Core:%d.\r\n", xPortGetCoreID());
   }
 
-  for (;;) // A Task shall never return or exit.
+  for (;;)  // A Task shall never return or exit.
   {
     ReadDRAPort();
     readGPSData();
-    vTaskDelay( 50 / portTICK_PERIOD_MS ); // wait for 50 miliSec
+    vTaskDelay(50 / portTICK_PERIOD_MS);  // wait for 50 miliSec
   }
 }
 
@@ -740,7 +745,7 @@ void loop() {
     aprsGatewayRefreshed = millis();
   }
 
-  if ((millis() - webRefresh) > 1000) { 
+  if ((millis() - webRefresh) > 1000) {
     RefreshWebPage();
     webRefresh = millis();
   }
@@ -753,6 +758,11 @@ void loop() {
 
   // processPacket();
   if (dirtyScreen) DrawScreen(true);
+
+  if (actualPage < lastPage && (millis() - LipoMeasure) > LipoMeasureTime * 1000 ) {
+    Lipovolt();
+    LipoMeasure = millis();
+  }
 }
 
 void processPacket() {
@@ -988,7 +998,9 @@ void DrawScreen() {
 
 void DrawScreen(bool drawAll) {
   tft.fillScreen(TFT_BLACK);
-  if (actualPage < lastPage || drawAll) DrawFrequency(false);
+  if (actualPage < lastPage || drawAll){
+    DrawFrequency(false);
+  } 
   if (actualPage == BTN_NUMERIC) DrawKeyboardNumber(false);
   DrawButtons();
   dirtyScreen = false;
@@ -1030,6 +1042,63 @@ void DrawDebugInfo(char debugInfo[]) {
   if (beforeDebugPage > 0) tft.drawString(debugInfo, 2, 25 + (debugLine * 8), 1);
   DebugPrintln(debugInfo);
   debugLine++;
+}
+
+void Lipovolt() {
+  int Yoff = 50;
+  int Xoff = 5;
+
+  tft.setTextSize(1);
+  tft.setTextDatum(BC_DATUM);
+  tft.fillRect(Xoff - 2 , 0 + Yoff - 6 , 14 , 32 , TFT_BLACK);
+
+  int LipoVolt_Result = 0;
+  float lipvolt = 0.0;
+
+  LipoVolt_Result = analogRead(LipoVoltpin);
+  lipvolt = readADC_Cal(LipoVolt_Result);
+  lipvolt = lipvolt / 500; // 500 because millivolts and half voltage measured 
+
+  //======== just for test to see real lipo voltage ================
+  
+    // tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    // tft.setCursor(0, 35);
+    // tft.print(lipvolt,2);
+  
+  //================================================================
+
+  tft.drawRect(Xoff - 1, Yoff - 1 , 12 , 26 , TFT_WHITE);
+  tft.fillRect(Xoff + 2 , Yoff - 4,  6 , 3 , TFT_WHITE);
+
+  if (lipvolt >= 3.9) {
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setTextPadding(tft.textWidth("100%"));
+    tft.fillRect(Xoff , Yoff, 10 , 6 , TFT_GREEN);
+    //tft.drawString("100%", 24 + Xoff, 7 + Yoff);
+  }
+
+  if (lipvolt >= 3.7) {
+    tft.fillRect(Xoff, 6 + Yoff, 10 , 6 , TFT_YELLOW);
+  }
+
+  if (lipvolt >= 3.5) {
+    tft.fillRect(Xoff, 12 + Yoff, 10 , 6 , TFT_ORANGE);
+  }
+
+  if (lipvolt >= 3.3) {
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setTextPadding(tft.textWidth("25%"));
+    tft.fillRect(Xoff, 18 + Yoff, 10 , 6 , TFT_RED);
+    //tft.drawString("25%", 24 + Xoff, 25 + Yoff);
+  }
+ 
+}
+
+uint32_t readADC_Cal(int ADC_Raw) {// calibratie ADC ESP32
+  esp_adc_cal_characteristics_t adc_chars;
+
+  esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_11, ADC_WIDTH_BIT_12, 1100, &adc_chars);
+  return (esp_adc_cal_raw_to_voltage(ADC_Raw, &adc_chars));
 }
 /***************************************************************************************
 **            Draw frequencies
@@ -1088,6 +1157,7 @@ void DrawFrequency(bool isAPRS, bool doClear) {
     } else tft.fillCircle(50, 60, 24, TFT_BLACK);
     DrawMeter(2, 100, 314, 30, swr, isPTT, false);
     lastMinute = -1;
+    Lipovolt();
   }
 }
 
@@ -1389,7 +1459,7 @@ void HandleFunction(Button button, int x, int y) {
 }
 
 void HandleFunction(Button button, int x, int y, bool doDraw) {
-  if (BEEPPIN>-1){
+  if (BEEPPIN > -1) {
     digitalWrite(BEEPPIN, 1);
     delay(25);
     digitalWrite(BEEPPIN, 0);
@@ -2007,7 +2077,7 @@ void ReadDRAPort() {
   }
 }
 
-void readGPSData(){
+void readGPSData() {
   if (GPSSerial.available()) {
     while (GPSSerial.available()) {
       //Serial.write(GPSSerial.read());
@@ -2372,16 +2442,16 @@ String Processor(const String &var) {
     if (i + 1 < (sizeof(buttons) / sizeof(buttons[0]))) {
       Button button = FindButtonInfo(buttons[i]);
       if ((button.pageNo < lastPage || button.pageNo == BTN_ARROW) && button.name != "MOX") {
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s; border:solid; border-radius: 1em; background-image: linear-gradient(%s)\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", 
-          button.name, 
-          String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue", 
-          String(button.name) == FindButtonNameByID(activeBtn) ? "white, #6781F1" : "#6781F1, #ADD8E6", 
-          button.name, 
-          button.caption, 
-          button.bottomColor == TFT_RED ? "red" : button.bottomColor == TFT_GREEN ? "green": "blue",
-          button.name, 
-          button.waarde
-          );
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"background-color:%s; border:solid; border-radius: 1em; background-image: linear-gradient(%s)\"><p><a href=\"/command?button=%s\">%s</a></p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>",
+                button.name,
+                String(button.name) == FindButtonNameByID(activeBtn) ? "white" : "lightblue",
+                String(button.name) == FindButtonNameByID(activeBtn) ? "white, #6781F1" : "#6781F1, #ADD8E6",
+                button.name,
+                button.caption,
+                button.bottomColor == TFT_RED ? "red" : button.bottomColor == TFT_GREEN ? "green"
+                                                                                        : "blue",
+                button.name,
+                button.waarde);
       }
       char buf2[10];
       sprintf(buf2, "%%BUTTONS%d%%", i + 1);
@@ -2396,13 +2466,13 @@ String Processor(const String &var) {
     if (i + 1 < (sizeof(buttons) / sizeof(buttons[0]))) {
       Button button = FindButtonInfo(buttons[i]);
       if (button.pageNo == BTN_NUMERIC) {
-        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"border:solid; border-color: black; border-radius: 1em; background-image: linear-gradient(%s)\"><p>%s</p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>", 
-          button.name, 
-          "#6781F1, blue", 
-          button.caption, 
-          "blue", 
-          button.name, 
-          button.waarde);
+        sprintf(buf, "<div id=\"BTN%s\" class=\"card\" style=\"border:solid; border-color: black; border-radius: 1em; background-image: linear-gradient(%s)\"><p>%s</p><p style=\"background-color:%s;color:white\"><span class=\"reading\"><span id=\"%s\">%s</span></span></p></div>",
+                button.name,
+                "#6781F1, blue",
+                button.caption,
+                "blue",
+                button.name,
+                button.waarde);
       }
       char buf2[10];
       sprintf(buf2, "%%NUMMERS%d%%", i + 1);
