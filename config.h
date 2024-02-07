@@ -145,8 +145,11 @@ Settings settings = {
     0,                  //preEmphase
     0,                  //highPass
     0,                  //lowPass
-    0                   //isDebug
+    0,                  //isDebug
+    378,                //touchRotation calData[0]
+    3473,               //touchRotation calData[1]
+    271,                //touchRotation calData[2]
+    3505,               //touchRotation calData[3]
+    7,                  //touchRotation calData[4]
+    0                   //doRotate
 };
-
-int screenRotation  = 1;                            // 0=0, 1=90, 2=180, 3=270
-uint16_t calData[5] = { 378, 3473, 271, 3505, 7 };

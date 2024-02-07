@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+// V2.6 Screen rotation and calibration added
 // V2.5 Battery level
 // V2.4 Beeper
 // V2.3 Removed delay from loop
@@ -263,6 +264,12 @@ typedef struct {
   bool highPass;
   bool lowPass;
   bool isDebug;
+  uint16_t calData0;
+  uint16_t calData1;
+  uint16_t calData2;
+  uint16_t calData3;
+  uint16_t calData4; 
+  bool doRotate;
 } Settings;
 
 typedef struct {
@@ -321,6 +328,7 @@ int draBufferLength = 0;
 int oldSwr, swr = 0;
 int32_t keyboardNumber = 0;
 bool dirtyScreen = false;
+bool doTouch = false;
 
 AX25Msg incomingPacket;
 uint8_t *packetData;
@@ -375,20 +383,6 @@ void setup() {
   GPSSerial.begin(9600, SERIAL_8N1, RXD1, TXD1);
   DRASerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
 
-  tft.init();
-  tft.setRotation(screenRotation);
-
-  tft.setTouch(calData);
-  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-
-  // add Wi-Fi networks from All_Settings.h
-  for (int i = 0; i < sizeof(wifiNetworks) / sizeof(wifiNetworks[0]); i++) {
-    wifiMulti.addAP(wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
-    DebugPrintf("Wifi:%s, Pass:%s.\r\n", wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
-  }
-
-  DrawButton(80, 80, 160, 30, "Connecting to WiFi", "", TFT_BLACK, TFT_WHITE, "");
-
   if (!EEPROM.begin(EEPROM_SIZE)) {
     DrawButton(80, 120, 160, 30, "EEPROM Failed", "", TFT_BLACK, TFT_WHITE, "");
     DebugPrintln("failed to initialise EEPROM");
@@ -408,6 +402,20 @@ void setup() {
 
   LoadConfig();
   LoadMemories();
+
+  tft.init();
+  tft.setRotation(settings.doRotate?3:1);
+  uint16_t calData[5] = {settings.calData0, settings.calData1, settings.calData2, settings.calData3, settings.calData4};
+  tft.setTouch(calData);
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+
+  // add Wi-Fi networks from All_Settings.h
+  for (int i = 0; i < sizeof(wifiNetworks) / sizeof(wifiNetworks[0]); i++) {
+    wifiMulti.addAP(wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
+    DebugPrintf("Wifi:%s, Pass:%s.\r\n", wifiNetworks[i].SSID, wifiNetworks[i].PASSWORD);
+  }
+
+  DrawButton(80, 80, 160, 30, "Connecting to WiFi", "", TFT_BLACK, TFT_WHITE, "");
 
   // show connected SSID
   wifiMulti.addAP(settings.wifiSSID, settings.wifiPass);
@@ -500,6 +508,15 @@ void ReadTask(void *pvParameters) { // This is a task.
       ESP.restart();
     });
 
+    server.on("/calibrate", HTTP_GET, [] (AsyncWebServerRequest *request) {
+      if (request->client()->remoteIP()[0] == 192 || request->client()->remoteIP()[0] == 10 || request->client()->remoteIP()[0] == 172){
+        request->send_P(200, "text/html", index_html, Processor);
+        doTouch = true;
+      }
+      else
+        request->send_P(200, "text/html", warning_html, Processor);
+    });
+
     server.on("/store", HTTP_GET, [](AsyncWebServerRequest *request) {
       SaveSettings(request);
       SaveConfig();
@@ -566,6 +583,13 @@ bool Connect2WiFi() {
 ***************************************************************************************/
 void loop() {
   esp_task_wdt_reset();
+
+  if (doTouch){
+    doTouch = false;
+    TouchCalibrate();
+    actualPage = 1;
+    DrawScreen();
+  }
 
   if (millis() - loopDelay > 50) {
     loopDelay = millis();
@@ -1889,6 +1913,7 @@ void DoTurnOff() {
 **            Calibrate touch
 ***************************************************************************************/
 void TouchCalibrate() {
+  esp_task_wdt_reset();
   uint16_t calData[5];
   uint8_t calDataOK = 0;
 
@@ -1900,35 +1925,33 @@ void TouchCalibrate() {
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
 
   tft.println("Touch corners as indicated");
-
+  esp_task_wdt_reset();
   tft.setTextFont(1);
   tft.println();
 
   tft.calibrateTouch(calData, TFT_MAGENTA, TFT_BLACK, 15);
-
-  DebugPrintln();
-  DebugPrintln();
-  DebugPrintln("// Use this calibration code in setup():");
-  DebugPrint("  uint16_t calData[5] = ");
-  DebugPrint("{ ");
-
+  esp_task_wdt_reset();
+  DebugPrintln("Calibrate started");
+  DebugPrint("calData[5] = { ");
   for (uint8_t i = 0; i < 5; i++) {
     DebugPrint(calData[i]);
     if (i < 4) DebugPrint(", ");
   }
-
   DebugPrintln(" };");
-  DebugPrint("  tft.setTouch(calData);");
-  DebugPrintln();
-  DebugPrintln();
-
+  esp_task_wdt_reset();
+  settings.calData0 = calData[0];
+  settings.calData1 = calData[1];
+  settings.calData2 = calData[2];
+  settings.calData3 = calData[3];
+  settings.calData4 = calData[4];
+  if (SaveConfig()) Serial.println("Calibration data saved");
+  esp_task_wdt_reset();
   tft.fillScreen(TFT_BLACK);
 
   tft.setTextColor(TFT_GREEN, TFT_BLACK);
   tft.println("Calibration complete!");
-  tft.println("Calibration code sent to Serial port.");
-
-  delay(4000);
+  esp_task_wdt_reset();
+  delay(2000);
 }
 
 /***************************************************************************************
@@ -2163,6 +2186,7 @@ bool LoadConfig() {
       *((char *)&settings + t) = EEPROM.read(offsetEEPROM + t);
   } else retVal = false;
   DebugPrintln("Configuration:" + retVal ? "Loaded" : "Not loaded");
+  DebugPrintf("CalData[0,1,2,3,4]=%d,%d,%d,%d,%d", settings.calData0,settings.calData1,settings.calData2,settings.calData3,settings.calData4);
   return retVal;
 }
 
@@ -2423,6 +2447,7 @@ String Processor(const String &var) {
   if (var == "mikeLevel") return String(settings.mikeLevel);
   if (var == "repeatSetDRA") return String(settings.repeatSetDRA);
   if (var == "isDebug") return settings.isDebug ? "checked" : "";
+  if (var == "doRotate") return settings.doRotate ? "checked" : "";
 
   if (var >= "REPEATERS" && var <= "REPEATERS99") {
     buf[0] = '\0';
@@ -2520,4 +2545,5 @@ void SaveSettings(AsyncWebServerRequest *request) {
   if (request->hasParam("mikeLevel")) settings.mikeLevel = request->getParam("mikeLevel")->value().toInt();
   if (request->hasParam("repeatSetDRA")) settings.repeatSetDRA = request->getParam("repeatSetDRA")->value().toInt();
   settings.isDebug = request->hasParam("isDebug");
+  settings.doRotate = request->hasParam("doRotate");
 }
