@@ -578,6 +578,14 @@ bool Connect2WiFi() {
   return (WiFi.status() == WL_CONNECTED);
 }
 
+void doBeep(int timeLen){
+    if (BEEPPIN > -1) {
+    digitalWrite(BEEPPIN, 1);
+    delay(timeLen);
+    digitalWrite(BEEPPIN, 0);
+  }
+}
+
 /***************************************************************************************
 **                          Loop
 ***************************************************************************************/
@@ -635,6 +643,7 @@ void loop() {
     uint16_t x = 0, y = 0;
     bool pressed = tft.getTouch(&x, &y);
     if (pressed) {
+      doBeep(25);
       int showVal = ShowControls();
       for (int i = 0; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
         if ((buttons[i].pageNo & showVal) > 0) {
@@ -676,6 +685,7 @@ void loop() {
 
   int btnValue = analogRead(BTNSMIKEPIN);
   if (btnValue < 2048) {
+    doBeep(25);
     int firstBtnValue = btnValue;
     long startPress = millis();
     while (btnValue < 2048 && millis() - startPress < 2500) {
@@ -824,7 +834,10 @@ void WaitForWakeUp() {
     esp_task_wdt_reset();
     uint16_t x = 0, y = 0;
     bool pressed = tft.getTouch(&x, &y);
-    if (pressed) ESP.restart();
+    if (pressed){
+      doBeep(25);
+      ESP.restart();
+    } 
   }
 }
 
@@ -1483,11 +1496,7 @@ void HandleFunction(Button button, int x, int y) {
 }
 
 void HandleFunction(Button button, int x, int y, bool doDraw) {
-  if (BEEPPIN > -1) {
-    digitalWrite(BEEPPIN, 1);
-    delay(25);
-    digitalWrite(BEEPPIN, 0);
-  }
+  //doBeep(25);
   if (button.name == "ToRight") {
     activeBtnStart = millis();
     if (activeBtn == FindButtonIDByName("Freq")) {

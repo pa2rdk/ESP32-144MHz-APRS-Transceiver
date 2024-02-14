@@ -88,7 +88,7 @@ const CTCSSCode cTCSSCodes[] = {
 
 
 Settings settings = {
-    '%',                //chkDigit
+    '#',                //chkDigit
     0,                  //isUHF
     64,                 //aprsChannel
     140,                //rxChannel
