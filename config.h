@@ -88,7 +88,7 @@ const CTCSSCode cTCSSCodes[] = {
 
 
 Settings settings = {
-    '#',                //chkDigit
+    '}',                //chkDigit
     0,                  //isUHF
     64,                 //aprsChannel
     140,                //rxChannel
@@ -151,5 +151,5 @@ Settings settings = {
     271,                //touchRotation calData[2]
     3505,               //touchRotation calData[3]
     7,                  //touchRotation calData[4]
-    0                   //doRotate
+    1                   //doRotate
 };
