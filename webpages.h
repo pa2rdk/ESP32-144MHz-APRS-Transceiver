@@ -11,7 +11,7 @@ const char index_html[] PROGMEM = R"rawliteral(
   <body>
   <div class="freqinfo" style="border:solid; border-radius: 1em; border-color: black; background-image: linear-gradient(blue, black); text-align:center">
     <div class="topnav">
-    <h1>APRS Radio Server</h1>
+      <h1>APRS Radio Server</h1>
     </div>
 
       <div class="row">

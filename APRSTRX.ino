@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////
+// V2.9 Bug with beacons on main frequency
 // V2.8 OTA
 // V2.6 Screen rotation and calibration added
 // V2.5 Battery level
@@ -65,7 +66,7 @@
 #define AA_FONT_SMALL "fonts/NotoSansBold15"  // 15 point sans serif bold
 #define AA_FONT_LARGE "fonts/NotoSansBold36"  // 36 point sans serif bold
 #define VERSION "PA2RDK_IGATE_TCP"
-#define INFO "Arduino PARDK IGATE"
+#define INFO "Arduino PA2RDK IGATE"
 #define WDT_TIMEOUT 10
 
 #define TFT_GREY 0x5AEB
@@ -115,7 +116,7 @@
 #define LipoMeasureTime 10  // Lipo check every 10 seconds
 
 #define OTAHOST      "https://www.rjdekok.nl/Updates/APRSTRX"
-#define OTAVERSION   "v2.8"
+#define OTAVERSION   "v2.9"
 
 //#define DebugEnabled
 #ifdef DebugEnabled
@@ -780,11 +781,12 @@ void loop() {
     }
 
     if (isFromPTT && settings.bcnAfterTX) doBeacon = true;
+    if (millis() - lastBeacon < 5000) doBeacon = false;
 
     if (doBeacon) {
-      lastBeacon = millis();
       lastCourse = gps.course.isValid() ? gps.course.deg() : -1;
       SendBeacon(false, (isFromPTT && settings.bcnAfterTX));
+      lastBeacon = millis();
     }
   }
 
@@ -2054,7 +2056,6 @@ void SetFreq(int step, int channel, uint8_t txShift, bool isAPRS) {
     }
     SetDra(settings.rxChannel, settings.txChannel, (settings.hasTone == TONETYPERX || settings.hasTone == TONETYPERXTX) ? settings.ctcssTone : TONETYPENONE, (settings.hasTone == TONETYPETX || settings.hasTone == TONETYPERXTX) ? settings.ctcssTone : TONETYPENONE, settings.squelsh);
   }
-  delay(50);
 }
 
 void SetDra(uint16_t rxFreq, uint16_t txFreq, byte rxTone, byte txTone, byte squelsh) {
@@ -2066,6 +2067,7 @@ void SetDra(uint16_t rxFreq, uint16_t txFreq, byte rxTone, byte txTone, byte squ
     DebugPrintln();
     DebugPrintln(buf);
     DRASerial.println(buf);
+    delay(50);
   }
 }
 
@@ -2076,11 +2078,13 @@ void SetDraVolume(byte volume) {
   DebugPrintln();
   DebugPrintln(buf);
   DRASerial.println(buf);
+  delay(50);
 }
 
 void GetDraRSSI() {
   sprintf(buf, "RSSI?");
   DRASerial.println(buf);
+  delay(50);
 }
 
 void SetDraSettings() {
@@ -2089,6 +2093,7 @@ void SetDraSettings() {
   DebugPrint("Filter:");
   DebugPrintln(buf);
   DRASerial.println(buf);
+  delay(50);
 
   // sprintf(buf, "AT+DMOSETMIC=%01d,0", settings.mikeLevel);
   // DebugPrintln();
@@ -2156,7 +2161,8 @@ void PrintGPSInfo() {
 
     tft.drawString("GPS:", 2, 10, 2);
     tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.drawString("Valid       :" + gps.location.isValid() ? "true" : "false", 2, 25, 1);
+    String GPSValid = gps.location.isValid() ? "true" : "false";
+    tft.drawString("Valid       :" + GPSValid, 2, 25, 1);
     tft.drawString("Lat         :" + String(gps.location.lat(), 6), 2, 33, 1);
     tft.drawString("Lon         :" + String(gps.location.lng(), 6), 2, 41, 1);
     tft.drawString("Age         :" + String(gps.location.age()), 2, 49, 1);
